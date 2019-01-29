@@ -1,0 +1,18 @@
+{
+  "name": "dusty-plasma-molecular-dynamics-ajp-2019",
+  "description": "A visualized simulation of moledular dynamics in dusty plasmas as additional material for an American Journal of Physics article.",
+  "scripts": {
+    "start": "http-server -c-1"
+  },
+  "dependencies": {
+    "http-server": "^0.11.1"
+  },
+  "devDependencies": {
+    "eslint": "^5.12.1",
+    "eslint-config-standard": "^12.0.0",
+    "eslint-plugin-import": "^2.15.0",
+    "eslint-plugin-node": "^8.0.1",
+    "eslint-plugin-promise": "^4.0.1",
+    "eslint-plugin-standard": "^4.0.0"
+  }
+}
