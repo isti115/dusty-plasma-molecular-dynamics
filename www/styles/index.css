@@ -1,2 +1,18 @@
 @import url('controls.css');
 @import url('mirror.css');
+
+body {
+  display: inline-block;
+}
+
+#title, #app {
+  padding: 10px;
+
+  border: 2px solid gray;
+}
+
+#title {
+  font-family: 'Century Gothic';
+  font-size: 30px;
+  text-align: center;
+}
