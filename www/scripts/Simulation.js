@@ -12,7 +12,9 @@ export default class Simulation {
     this.init = this.init.bind(this)
     this.placeParticles = this.placeParticles.bind(this)
     this.makeGrid = this.makeGrid.bind(this)
-    this.processParticleWithCellFromIndex = this.processParticleWithCellFromIndex.bind(this)
+    this.processParticleWithCellFromIndex = (
+      this.processParticleWithCellFromIndex.bind(this)
+    )
     this.calculateForces = this.calculateForces.bind(this)
     this.updateSpeed = this.updateSpeed.bind(this)
     this.updatePosition = this.updatePosition.bind(this)
@@ -42,8 +44,8 @@ export default class Simulation {
 
     this.particles.forEach(p => {
       const cell = {
-        x: Math.floor(p.x / (this.size.x / this.gridCount.x)),
-        y: Math.floor(p.y / (this.size.y / this.gridCount.y))
+        x: Math.floor(p.position.x / (this.size.x / this.gridCount.x)),
+        y: Math.floor(p.position.y / (this.size.y / this.gridCount.y))
       }
 
       this.grid[cell.y][cell.x].push(p)
@@ -71,8 +73,12 @@ export default class Simulation {
       const currentOtherParticle = currentOtherCell[otherParticleIndex]
 
       const offset = {
-        x: currentParticle.x - (currentOtherParticle.x + (this.size.x * overflow.x)),
-        y: currentParticle.y - (currentOtherParticle.y + (this.size.y * overflow.y))
+        x: currentParticle.position.x - (
+          currentOtherParticle.position.x + (this.size.x * overflow.x)
+        ),
+        y: currentParticle.position.y - (
+          currentOtherParticle.position.y + (this.size.y * overflow.y)
+        )
       }
 
       const distance = utilities.norm(offset.x, offset.y)
@@ -83,19 +89,19 @@ export default class Simulation {
           y: (1 / offset.y) * (1 / distance)
         }
 
-        currentParticle.fx += force.x
-        currentParticle.fy += force.y
+        currentParticle.force.x += force.x
+        currentParticle.force.y += force.y
 
-        currentOtherParticle.fx -= force.x
-        currentOtherParticle.fy -= force.y
+        currentOtherParticle.force.x -= force.x
+        currentOtherParticle.force.y -= force.y
       }
     }
   }
 
   calculateForces () {
     this.particles.forEach(p => {
-      p.fx = 0
-      p.fy = 0
+      p.force.x = 0
+      p.force.y = 0
     })
 
     for (let x = 0; x < this.gridCount.x; x++) {
@@ -130,7 +136,7 @@ export default class Simulation {
 
   updateSpeed (dt) {
     const speedSum = this.particles.map(
-      p => utilities.norm(p.vx, p.vy)
+      p => utilities.norm(p.velocity.x, p.velocity.y)
     ).reduce((a, b) => a + b, 0)
 
     // console.log(this.particles[15].vx, this.particles[15].vy)
@@ -139,22 +145,38 @@ export default class Simulation {
     const dampening = speedSum > 100 ? 100 / speedSum : 1
 
     this.particles.forEach(p => {
-      p.vx = dampening * p.vx + dt * p.fx
-      p.vy = dampening * p.vy + dt * p.fy
+      p.velocity.x = dampening * p.velocity.x + dt * p.force.x
+      p.velocity.y = dampening * p.velocity.y + dt * p.force.y
     })
   }
 
   updatePosition (dt) {
     this.particles.forEach(p => {
-      p.x = utilities.boundedValue(0, this.size.x, p.x + dt * p.vx)
-      p.y = utilities.boundedValue(0, this.size.y, p.y + dt * p.vy)
+      p.position.x = utilities.boundedValue(
+        0,
+        this.size.x,
+        p.position.x + dt * p.velocity.x
+      )
+      p.position.y = utilities.boundedValue(
+        0,
+        this.size.y,
+        p.position.y + dt * p.velocity.y
+      )
     })
   }
 
   randomMove (dt) {
     this.particles.forEach(p => {
-      p.x = utilities.boundedValue(0, this.size.x, p.x + dt * (-1 + (2 * Math.random())))
-      p.y = utilities.boundedValue(0, this.size.y, p.y + dt * (-1 + (2 * Math.random())))
+      p.position.x = utilities.boundedValue(
+        0,
+        this.size.x,
+        p.position.x + dt * (-1 + (2 * Math.random()))
+      )
+      p.position.y = utilities.boundedValue(
+        0,
+        this.size.y,
+        p.position.y + dt * (-1 + (2 * Math.random()))
+      )
     })
   }
 

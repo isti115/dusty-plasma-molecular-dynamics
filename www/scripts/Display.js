@@ -21,7 +21,7 @@ export default class Display {
   drawParticle (particle) {
     const particleSize = 2
 
-    const { x, y } = particle
+    const { x, y } = particle.position
     this.context.beginPath()
     this.context.arc(x, y, particleSize, 0, 2 * Math.PI)
     this.context.fillStyle = '#000000'

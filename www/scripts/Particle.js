@@ -1,26 +1,18 @@
 export default class Particle {
   constructor () {
-    this.x = 0
-    this.y = 0
-
-    this.vx = 0
-    this.vy = 0
-
-    this.fx = 0
-    this.fy = 0
+    this.position = { x: 0, y: 0 }
+    this.velocity = { x: 0, y: 0 }
+    this.force = { x: 0, y: 0 }
+    this.previousForce = { x: 0, y: 0 }
   }
 
   static randomParticle (limit) {
     const p = new Particle()
 
-    p.x = Math.random() * limit.x
-    p.y = Math.random() * limit.y
-
-    // p.vx = 0
-    // p.vy = 0
-
-    // p.fx = 0
-    // p.fy = 0
+    p.position = {
+      x: Math.random() * limit.x,
+      y: Math.random() * limit.y
+    }
 
     return p
   }
