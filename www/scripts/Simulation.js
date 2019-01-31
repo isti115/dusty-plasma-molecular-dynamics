@@ -1,13 +1,13 @@
 import Particle from './Particle.js'
-import * as physics from './physics.js'
 
 import * as utilities from './utilities.js'
 
 export default class Simulation {
-  constructor (size, gridCount, particleCount) {
+  constructor (size, gridCount, particleCount, desiredTemperature) {
     this.size = size
     this.gridCount = gridCount
     this.particleCount = particleCount
+    this.desiredTemperature = desiredTemperature
 
     this.init = this.init.bind(this)
     this.placeParticles = this.placeParticles.bind(this)
@@ -100,8 +100,8 @@ export default class Simulation {
 
   calculateForces () {
     this.particles.forEach(p => {
-      p.force.x = 0
-      p.force.y = 0
+      p.previousForce = p.force
+      p.force = { x: 0, y: 0 }
     })
 
     for (let x = 0; x < this.gridCount.x; x++) {
@@ -142,7 +142,11 @@ export default class Simulation {
     // console.log(this.particles[15].vx, this.particles[15].vy)
     // console.log(speedSum)
 
-    const dampening = speedSum > 100 ? 100 / speedSum : 1
+    const dampening = (
+      speedSum > this.desiredTemperature
+        ? this.desiredTemperature / speedSum
+        : 1
+    )
 
     this.particles.forEach(p => {
       p.velocity.x = dampening * p.velocity.x + dt * p.force.x
@@ -182,6 +186,12 @@ export default class Simulation {
 
   update () {
     // this.randomMove()
+    while (this.particles.length > this.particleCount) {
+      this.particles.pop()
+    }
+    while (this.particles.length < this.particleCount) {
+      this.particles.push(Particle.randomParticle(this.size))
+    }
 
     const dt = 1
 

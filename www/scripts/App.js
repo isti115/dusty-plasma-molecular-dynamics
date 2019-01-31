@@ -1,6 +1,7 @@
+import Controls from './Controls.js'
 import Display from './Display.js'
-import Simulation from './Simulation.js'
 import Mirror from './Mirror.js'
+import Simulation from './Simulation.js'
 
 const displaySize = 300
 
@@ -19,9 +20,12 @@ export default class App {
 
   init () {
     this.display = new Display(displaySize, displaySize)
-
     this.mirror = new Mirror(this.display.canvas, 3, 3)
+
+    this.controls = new Controls()
+
     this.container.appendChild(this.mirror.canvas)
+    this.container.appendChild(this.controls.container)
 
     this.simulation = new Simulation(
       { x: displaySize, y: displaySize },
@@ -33,6 +37,9 @@ export default class App {
   }
 
   update () {
+    this.simulation.particleCount = this.controls.countInput.value
+    this.simulation.desiredTemperature = this.controls.temperatureInput.value
+
     this.simulation.update()
     this.display.draw(this.simulation.particles)
     this.mirror.draw()

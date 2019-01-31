@@ -15,12 +15,7 @@ export default class Mirror {
     this.canvas.width = this.source.width * this.horizontalCount
     this.canvas.height = this.source.height * this.verticalCount
 
-    this.canvas.style.webkitMask = `radial-gradient(
-      ellipse at center,
-      rgba(255, 255, 255, 1.0) 30%,
-      rgba(255, 255, 255, 0.0) 55%
-    )`
-    this.canvas.style.margin = '-100px'
+    this.canvas.classList.add('mirror')
 
     this.context = this.canvas.getContext('2d')
   }

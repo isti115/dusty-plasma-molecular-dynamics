@@ -1,0 +1,15 @@
+.mirror {
+  display: inline-block;
+
+  vertical-align: middle;
+
+  position: relative;
+  z-index: -1;
+
+  margin: -100px;
+  -webkit-mask: radial-gradient(
+    ellipse at center,
+    rgba(255, 255, 255, 1.0) 30%,
+    rgba(255, 255, 255, 0.0) 55%
+  );
+}
