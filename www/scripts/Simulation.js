@@ -36,6 +36,14 @@ export default class Simulation {
       this.particleCount,
       () => Particle.randomParticle(this.size)
     )
+
+    // const p1 = new Particle()
+    // p1.position = { x: 140, y: 150 }
+
+    // const p2 = new Particle()
+    // p2.position = { x: 160, y: 150 }
+
+    // this.particles = [ p1, p2 ]
   }
 
   makeGrid () {
@@ -86,16 +94,18 @@ export default class Simulation {
       const distance = utilities.norm(offset.x, offset.y)
       const cutoffDistance = 200
       if (distance < cutoffDistance) {
-        const force = {
-          x: (1 / offset.x) * (1 / distance),
-          y: (1 / offset.y) * (1 / distance)
+        const force = 1e10 * (1 / Math.pow(distance, 2) + 1 / distance) * Math.exp(-distance) / distance
+
+        const directionalForce = {
+          x: offset.x * force,
+          y: offset.y * force
         }
 
-        currentParticle.force.x += force.x
-        currentParticle.force.y += force.y
+        currentParticle.force.x += directionalForce.x
+        currentParticle.force.y += directionalForce.y
 
-        currentOtherParticle.force.x -= force.x
-        currentOtherParticle.force.y -= force.y
+        currentOtherParticle.force.x -= directionalForce.x
+        currentOtherParticle.force.y -= directionalForce.y
       }
     }
   }
@@ -141,22 +151,22 @@ export default class Simulation {
       p => utilities.norm(p.velocity.x, p.velocity.y)
     ).reduce((a, b) => a + b, 0)
 
-    this.kineticEnergy = speedSum
+    this.kineticEnergy = Math.pow(speedSum, 2)
 
-    const dampening = (
-      speedSum > this.desiredTemperature
-        ? this.desiredTemperature / speedSum
-        : 1
-    )
+    // const dampening = (
+    //   speedSum > this.desiredTemperature
+    //     ? this.desiredTemperature / speedSum
+    //     : 1
+    // )
 
     this.particles.forEach(p => {
       p.velocity = {
         x: (
-          dampening * p.velocity.x +
+          p.velocity.x +
           dt * (p.previousForce.x + p.force.x) / 2
         ),
         y: (
-          dampening * p.velocity.y +
+          p.velocity.y +
           dt * (p.previousForce.y + p.force.y) / 2
         )
       }
@@ -214,7 +224,7 @@ export default class Simulation {
 
     // this.randomMove(1)
 
-    const dt = 1
+    const dt = 0.5
 
     this.makeGrid()
     this.updatePosition(dt)

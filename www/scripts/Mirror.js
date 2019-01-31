@@ -20,22 +20,24 @@ export default class Mirror {
     this.context = this.canvas.getContext('2d')
   }
 
-  draw () {
-    // this.context.drawImage(
-    //   this.source,
-    //   this.source.width,
-    //   this.source.height
-    // )
-
-    ;[...new Array(this.horizontalCount)].forEach((_, x) => {
-      [...new Array(this.verticalCount)].forEach((_, y) => {
-        this.context.drawImage(
-          this.source,
-          x * this.source.width,
-          y * this.source.height
-        )
+  draw (periodic) {
+    if (periodic) {
+      ;[...new Array(this.horizontalCount)].forEach((_, x) => {
+        [...new Array(this.verticalCount)].forEach((_, y) => {
+          this.context.drawImage(
+            this.source,
+            x * this.source.width,
+            y * this.source.height
+          )
+        })
       })
-    })
+    } else {
+      this.context.drawImage(
+        this.source,
+        this.source.width,
+        this.source.height
+      )
+    }
 
     this.context.lineWidth = 1
     this.context.strokeStyle = 'rgba(128, 128, 128, 0.5)'

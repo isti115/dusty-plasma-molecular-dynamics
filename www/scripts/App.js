@@ -30,7 +30,7 @@ export default class App {
     this.simulation = new Simulation(
       { x: displaySize, y: displaySize },
       { x: 5, y: 5 },
-      50
+      this.controls.countInput.value
     )
 
     this.update()
@@ -44,8 +44,8 @@ export default class App {
 
     this.simulation.update()
     this.display.draw(this.simulation.particles)
-    this.mirror.draw()
+    this.mirror.draw(true)
 
-    window.setTimeout(this.update, 20)
+    window.setTimeout(this.update, 5)
   }
 }
