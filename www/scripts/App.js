@@ -23,7 +23,11 @@ export default class App {
     this.mirror = new Mirror(this.display.canvas, 3, 3)
     this.container.appendChild(this.mirror.canvas)
 
-    this.simulation = new Simulation(displaySize, displaySize, 50)
+    this.simulation = new Simulation(
+      { x: displaySize, y: displaySize },
+      { x: 5, y: 5 },
+      50
+    )
 
     this.update()
   }

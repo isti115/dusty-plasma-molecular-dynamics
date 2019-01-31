@@ -10,11 +10,11 @@ export default class Particle {
     this.fy = 0
   }
 
-  static randomParticle () {
+  static randomParticle (limit) {
     const p = new Particle()
 
-    p.x = Math.random() * 500
-    p.y = Math.random() * 500
+    p.x = Math.random() * limit.x
+    p.y = Math.random() * limit.y
 
     // p.vx = 0
     // p.vy = 0
