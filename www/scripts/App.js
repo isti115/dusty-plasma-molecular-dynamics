@@ -40,6 +40,8 @@ export default class App {
     this.simulation.particleCount = this.controls.countInput.value
     this.simulation.desiredTemperature = this.controls.temperatureInput.value
 
+    this.controls.kineticEnergyGraph.add(this.simulation.kineticEnergy)
+
     this.simulation.update()
     this.display.draw(this.simulation.particles)
     this.mirror.draw()

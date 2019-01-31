@@ -25,3 +25,11 @@
   background: #4CAF50;
   cursor: pointer;
 }
+
+.graph {
+  margin-top: 20px;
+}
+
+.graph canvas {
+  border: 1px solid black;
+}

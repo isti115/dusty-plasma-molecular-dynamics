@@ -27,6 +27,8 @@ export default class Simulation {
   init () {
     this.placeParticles()
     this.makeGrid()
+
+    this.kineticEnergy = 0
   }
 
   placeParticles () {
@@ -139,8 +141,7 @@ export default class Simulation {
       p => utilities.norm(p.velocity.x, p.velocity.y)
     ).reduce((a, b) => a + b, 0)
 
-    // console.log(this.particles[15].vx, this.particles[15].vy)
-    // console.log(speedSum)
+    this.kineticEnergy = speedSum
 
     const dampening = (
       speedSum > this.desiredTemperature
