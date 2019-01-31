@@ -21,6 +21,12 @@ export default class Mirror {
   }
 
   draw () {
+    // this.context.drawImage(
+    //   this.source,
+    //   this.source.width,
+    //   this.source.height
+    // )
+
     ;[...new Array(this.horizontalCount)].forEach((_, x) => {
       [...new Array(this.verticalCount)].forEach((_, y) => {
         this.context.drawImage(

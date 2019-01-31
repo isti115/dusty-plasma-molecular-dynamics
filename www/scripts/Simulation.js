@@ -150,23 +150,42 @@ export default class Simulation {
     )
 
     this.particles.forEach(p => {
-      p.velocity.x = dampening * p.velocity.x + dt * p.force.x
-      p.velocity.y = dampening * p.velocity.y + dt * p.force.y
+      p.velocity = {
+        x: (
+          dampening * p.velocity.x +
+          dt * (p.previousForce.x + p.force.x) / 2
+        ),
+        y: (
+          dampening * p.velocity.y +
+          dt * (p.previousForce.y + p.force.y) / 2
+        )
+      }
     })
   }
 
   updatePosition (dt) {
     this.particles.forEach(p => {
-      p.position.x = utilities.boundedValue(
-        0,
-        this.size.x,
-        p.position.x + dt * p.velocity.x
-      )
-      p.position.y = utilities.boundedValue(
-        0,
-        this.size.y,
-        p.position.y + dt * p.velocity.y
-      )
+      p.position = {
+        x: utilities.boundedValue(
+          0,
+          this.size.x,
+          (
+            p.position.x +
+            dt * p.velocity.x +
+            0.5 * Math.pow(dt, 2) * p.force.x
+          )
+        ),
+
+        y: utilities.boundedValue(
+          0,
+          this.size.y,
+          (
+            p.position.y +
+            dt * p.velocity.y +
+            0.5 * Math.pow(dt, 2) * p.force.y
+          )
+        )
+      }
     })
   }
 
@@ -186,7 +205,6 @@ export default class Simulation {
   }
 
   update () {
-    // this.randomMove()
     while (this.particles.length > this.particleCount) {
       this.particles.pop()
     }
@@ -194,11 +212,13 @@ export default class Simulation {
       this.particles.push(Particle.randomParticle(this.size))
     }
 
+    // this.randomMove(1)
+
     const dt = 1
 
     this.makeGrid()
+    this.updatePosition(dt)
     this.calculateForces()
     this.updateSpeed(dt)
-    this.updatePosition(dt)
   }
 }
