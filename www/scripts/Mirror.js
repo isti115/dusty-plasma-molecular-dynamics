@@ -22,6 +22,14 @@ export default class Mirror {
 
   draw (periodic) {
     if (periodic) {
+      this.canvas.classList.add('big')
+    } else {
+      this.canvas.classList.remove('big')
+    }
+
+    this.context.clearRect(0, 0, this.canvas.width, this.canvas.height)
+
+    if (periodic) {
       ;[...new Array(this.horizontalCount)].forEach((_, x) => {
         [...new Array(this.verticalCount)].forEach((_, y) => {
           this.context.drawImage(

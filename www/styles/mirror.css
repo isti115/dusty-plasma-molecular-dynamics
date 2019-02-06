@@ -6,10 +6,17 @@
   position: relative;
   z-index: -1;
 
-  margin: -100px;
+  margin: -250px;
+
   -webkit-mask: radial-gradient(
     ellipse at center,
     rgba(255, 255, 255, 1.0) 30%,
     rgba(255, 255, 255, 0.0) 55%
   );
+
+  transition: 1s;
+}
+
+.mirror.big {
+  margin: -100px;
 }

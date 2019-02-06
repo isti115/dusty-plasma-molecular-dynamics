@@ -1,10 +1,50 @@
+class Toggle {
+  constructor (name, defaultValue) {
+    this.name = name
+    this.defaultValue = defaultValue
+
+    this.init = this.init.bind(this)
+
+    this.init()
+  }
+
+  init () {
+    this.container = window.document.createElement('div')
+    this.container.classList.add('toggle')
+
+    this.label = window.document.createElement('label')
+    this.container.appendChild(this.label)
+
+    this.input = window.document.createElement('input')
+    this.input.type = 'checkbox'
+    this.input.checked = this.defaultValue
+    this.label.appendChild(this.input)
+
+    this.checkmark = window.document.createElement('span')
+    this.checkmark.classList.add('checkmark')
+    this.label.appendChild(this.checkmark)
+
+    this.text = window.document.createTextNode(this.name)
+    this.label.appendChild(this.text)
+  }
+
+  get value () {
+    return this.input.checked
+  }
+
+  set value (value) {
+    this.input.checked = value
+  }
+}
+
 class Slider {
-  constructor (name, min, max, defaultValue, stepSize) {
+  constructor (name, min, max, defaultValue, stepSize, modifierFunction) {
     this.name = name
     this.min = min
     this.max = max
     this.defaultValue = defaultValue
     this.stepSize = stepSize
+    this.modifierFunction = modifierFunction
 
     this.init = this.init.bind(this)
     this.updateText = this.updateText.bind(this)
@@ -32,11 +72,17 @@ class Slider {
   }
 
   updateText () {
-    this.text.innerHTML = `${this.name}: ${this.input.value}`
+    this.text.innerHTML = `${this.name}: ${this.value}`
   }
 
   get value () {
-    return new window.Number(this.input.value)
+    const innerValue = new window.Number(this.input.value)
+
+    return (
+      this.modifierFunction === undefined
+        ? innerValue
+        : this.modifierFunction(innerValue)
+    )
   }
 
   set value (value) {
@@ -113,7 +159,16 @@ export default class Controls {
     this.container = window.document.createElement('div')
     this.container.classList.add('controls')
 
-    this.gammaInput = new Slider('Desired Gamma', 1, 500, 20, 1)
+    this.mirrorToggle = new Toggle('Periodic display', true)
+    this.container.appendChild(this.mirrorToggle.container)
+
+    this.gammaInput = new Slider(
+      'Desired Gamma',
+      Math.log(1),
+      Math.log(500),
+      Math.log(20),
+      0.001,
+      x => Math.round(Math.exp(x)))
     this.container.appendChild(this.gammaInput.container)
 
     this.kappaInput = new Slider('Desired Kappa', 1, 5, 2, 0.1)

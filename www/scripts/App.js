@@ -48,7 +48,7 @@ export default class App {
 
     this.simulation.update()
     this.display.draw(this.simulation.particles)
-    this.mirror.draw(true)
+    this.mirror.draw(this.controls.mirrorToggle.value)
 
     window.setTimeout(this.update, 20)
   }
