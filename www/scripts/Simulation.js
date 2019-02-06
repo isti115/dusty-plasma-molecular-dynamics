@@ -1,13 +1,15 @@
 import Particle from './Particle.js'
 
 import * as utilities from './utilities.js'
+import * as physics from './physics.js'
 
 export default class Simulation {
-  constructor (size, gridCount, particleCount, desiredTemperature) {
+  constructor (size, gridCount, particleCount, gamma, kappa) {
     this.size = size
     this.gridCount = gridCount
     this.particleCount = particleCount
-    this.desiredTemperature = desiredTemperature
+    this.gamma = gamma
+    this.kappa = kappa
 
     this.init = this.init.bind(this)
     this.placeParticles = this.placeParticles.bind(this)
@@ -28,6 +30,7 @@ export default class Simulation {
     this.placeParticles()
     this.makeGrid()
 
+    this.stepCount = 0
     this.kineticEnergy = 0
   }
 
@@ -38,10 +41,10 @@ export default class Simulation {
     )
 
     // const p1 = new Particle()
-    // p1.position = { x: 140, y: 150 }
+    // p1.position = { x: 0.0049, y: 0.005 }
 
     // const p2 = new Particle()
-    // p2.position = { x: 160, y: 150 }
+    // p2.position = { x: 0.0051, y: 0.005 }
 
     // this.particles = [ p1, p2 ]
   }
@@ -92,13 +95,26 @@ export default class Simulation {
       }
 
       const distance = utilities.norm(offset.x, offset.y)
-      const cutoffDistance = 200
+      const cutoffDistance = physics.BoxSize / 3
+
       if (distance < cutoffDistance) {
-        const force = 1e10 * (1 / Math.pow(distance, 2) + 1 / distance) * Math.exp(-distance) / distance
+        const lambdaD = physics.WignerSeitzRadius / this.kappa
+
+        const force = (
+          Math.pow(physics.ParticleCharge, 2) / (
+            4 * Math.PI * physics.VacuumPermittivity
+          )
+        ) * (
+          (1 / Math.pow(distance, 2)) + (1 / (distance * lambdaD))
+        ) * (
+          Math.exp(-distance / lambdaD)
+        )
+
+        // 1e10 * (1 / Math.pow(distance, 2) + 1 / distance) * Math.exp(-distance) / distance
 
         const directionalForce = {
-          x: offset.x * force,
-          y: offset.y * force
+          x: (offset.x / distance) * force,
+          y: (offset.y / distance) * force
         }
 
         currentParticle.force.x += directionalForce.x
@@ -147,27 +163,48 @@ export default class Simulation {
   }
 
   updateSpeed (dt) {
-    const speedSum = this.particles.map(
-      p => utilities.norm(p.velocity.x, p.velocity.y)
-    ).reduce((a, b) => a + b, 0)
+    this.kineticEnergy = physics.ParticleMass * this.particles.map(
+      p => Math.pow(utilities.norm(p.velocity.x, p.velocity.y), 2)
+    ).reduce((a, b) => a + b, 0) / 2
 
-    this.kineticEnergy = Math.pow(speedSum, 2)
+    const desiredTemperature = (
+      Math.pow(physics.ParticleCharge, 2) /
+      (
+        4 * Math.PI * physics.VacuumPermittivity *
+        physics.WignerSeitzRadius *
+        physics.BoltzmannConstant *
+        this.gamma
+      )
+    )
+
+    const measuredTemperature = (
+      this.kineticEnergy /
+      (physics.BoltzmannConstant * this.particleCount)
+    )
 
     const dampening = (
-      this.kineticEnergy > this.desiredTemperature
-        ? this.desiredTemperature / this.kineticEnergy
+      measuredTemperature !== 0
+        ? Math.sqrt(desiredTemperature / measuredTemperature)
         : 1
     )
+
+    // const dampening = (
+    //   measuredTemperature > desiredTemperature
+    //     ? Math.sqrt(desiredTemperature / measuredTemperature)
+    //     : 1
+    // )
+
+    // console.log(measuredTemperature, desiredTemperature)
 
     this.particles.forEach(p => {
       p.velocity = {
         x: (
           dampening * p.velocity.x +
-          dt * (p.previousForce.x + p.force.x) / 2
+          dt * (p.previousForce.x + p.force.x) / (2 * physics.ParticleMass)
         ),
         y: (
           dampening * p.velocity.y +
-          dt * (p.previousForce.y + p.force.y) / 2
+          dt * (p.previousForce.y + p.force.y) / (2 * physics.ParticleMass)
         )
       }
     })
@@ -182,7 +219,7 @@ export default class Simulation {
           (
             p.position.x +
             dt * p.velocity.x +
-            0.5 * Math.pow(dt, 2) * p.force.x
+            0.5 * Math.pow(dt, 2) * (p.force.x / physics.ParticleMass)
           )
         ),
 
@@ -192,7 +229,7 @@ export default class Simulation {
           (
             p.position.y +
             dt * p.velocity.y +
-            0.5 * Math.pow(dt, 2) * p.force.y
+            0.5 * Math.pow(dt, 2) * (p.force.y / physics.ParticleMass)
           )
         )
       }
@@ -224,11 +261,14 @@ export default class Simulation {
 
     // this.randomMove(1)
 
-    const dt = 0.25
+    const updateMultiplier = 10
 
-    this.makeGrid()
-    this.updatePosition(dt)
-    this.calculateForces()
-    this.updateSpeed(dt)
+    for (let updateIndex = 0; updateIndex < updateMultiplier; updateIndex++) {
+      this.makeGrid()
+      this.updatePosition(physics.dt)
+      this.calculateForces()
+      this.updateSpeed(physics.dt)
+      this.stepCount++
+    }
   }
 }

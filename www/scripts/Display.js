@@ -1,3 +1,5 @@
+import * as physics from './physics.js'
+
 export default class Display {
   constructor (width, height) {
     this.width = width
@@ -22,8 +24,10 @@ export default class Display {
     const particleSize = 2
 
     const { x, y } = particle.position
+    const adjustedX = (x / physics.BoxSize) * this.width
+    const adjustedY = (y / physics.BoxSize) * this.height
     this.context.beginPath()
-    this.context.arc(x, y, particleSize, 0, 2 * Math.PI)
+    this.context.arc(adjustedX, adjustedY, particleSize, 0, 2 * Math.PI)
     this.context.fillStyle = '#000000'
     this.context.fill()
   }

@@ -3,6 +3,8 @@ import Display from './Display.js'
 import Mirror from './Mirror.js'
 import Simulation from './Simulation.js'
 
+import * as physics from './physics.js'
+
 const displaySize = 300
 
 export default class App {
@@ -28,17 +30,19 @@ export default class App {
     this.container.appendChild(this.controls.container)
 
     this.simulation = new Simulation(
-      { x: displaySize, y: displaySize },
-      { x: 5, y: 5 },
-      this.controls.countInput.value
+      { x: physics.BoxSize, y: physics.BoxSize },
+      { x: 3, y: 3 },
+      physics.ParticleCount,
+      this.controls.gammaInput.value,
+      this.controls.kappaInput.value
     )
 
     this.update()
   }
 
   update () {
-    this.simulation.particleCount = this.controls.countInput.value
-    this.simulation.desiredTemperature = this.controls.temperatureInput.value
+    this.simulation.gamma = this.controls.gammaInput.value
+    this.simulation.kappa = this.controls.kappaInput.value
 
     this.controls.kineticEnergyGraph.add(this.simulation.kineticEnergy)
 
@@ -46,6 +50,6 @@ export default class App {
     this.display.draw(this.simulation.particles)
     this.mirror.draw(true)
 
-    window.setTimeout(this.update, 5)
+    window.setTimeout(this.update, 20)
   }
 }

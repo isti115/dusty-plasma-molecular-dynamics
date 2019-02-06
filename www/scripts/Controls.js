@@ -1,9 +1,10 @@
 class Slider {
-  constructor (name, min, max, defaultValue) {
+  constructor (name, min, max, defaultValue, stepSize) {
     this.name = name
     this.min = min
     this.max = max
     this.defaultValue = defaultValue
+    this.stepSize = stepSize
 
     this.init = this.init.bind(this)
     this.updateText = this.updateText.bind(this)
@@ -23,6 +24,7 @@ class Slider {
     this.input.min = this.min
     this.input.max = this.max
     this.input.value = this.defaultValue
+    this.input.step = this.stepSize
     this.input.addEventListener('input', this.updateText)
     this.container.appendChild(this.input)
 
@@ -34,7 +36,7 @@ class Slider {
   }
 
   get value () {
-    return this.input.value
+    return new window.Number(this.input.value)
   }
 
   set value (value) {
@@ -111,11 +113,11 @@ export default class Controls {
     this.container = window.document.createElement('div')
     this.container.classList.add('controls')
 
-    this.countInput = new Slider('Particle Count', 0, 100, 50)
-    this.container.appendChild(this.countInput.container)
+    this.gammaInput = new Slider('Desired Gamma', 1, 500, 20, 1)
+    this.container.appendChild(this.gammaInput.container)
 
-    this.temperatureInput = new Slider('Desired Temperature', 0, 500, 250)
-    this.container.appendChild(this.temperatureInput.container)
+    this.kappaInput = new Slider('Desired Kappa', 1, 5, 2, 0.1)
+    this.container.appendChild(this.kappaInput.container)
 
     this.kineticEnergyGraph = new Graph('Kinetic Energy', 300, 150, 300)
     this.container.appendChild(this.kineticEnergyGraph.container)
