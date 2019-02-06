@@ -153,20 +153,20 @@ export default class Simulation {
 
     this.kineticEnergy = Math.pow(speedSum, 2)
 
-    // const dampening = (
-    //   speedSum > this.desiredTemperature
-    //     ? this.desiredTemperature / speedSum
-    //     : 1
-    // )
+    const dampening = (
+      this.kineticEnergy > this.desiredTemperature
+        ? this.desiredTemperature / this.kineticEnergy
+        : 1
+    )
 
     this.particles.forEach(p => {
       p.velocity = {
         x: (
-          p.velocity.x +
+          dampening * p.velocity.x +
           dt * (p.previousForce.x + p.force.x) / 2
         ),
         y: (
-          p.velocity.y +
+          dampening * p.velocity.y +
           dt * (p.previousForce.y + p.force.y) / 2
         )
       }
@@ -224,7 +224,7 @@ export default class Simulation {
 
     // this.randomMove(1)
 
-    const dt = 0.5
+    const dt = 0.25
 
     this.makeGrid()
     this.updatePosition(dt)

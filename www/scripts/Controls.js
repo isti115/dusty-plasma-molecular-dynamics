@@ -111,10 +111,10 @@ export default class Controls {
     this.container = window.document.createElement('div')
     this.container.classList.add('controls')
 
-    this.countInput = new Slider('Particle Count', 0, 100, 15)
+    this.countInput = new Slider('Particle Count', 0, 100, 50)
     this.container.appendChild(this.countInput.container)
 
-    this.temperatureInput = new Slider('Desired Temperature', 50, 150, 100)
+    this.temperatureInput = new Slider('Desired Temperature', 0, 500, 250)
     this.container.appendChild(this.temperatureInput.container)
 
     this.kineticEnergyGraph = new Graph('Kinetic Energy', 300, 150, 300)
