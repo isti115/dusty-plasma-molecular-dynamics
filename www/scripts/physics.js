@@ -11,6 +11,7 @@ export const ParticleCharge = 1e4 * ElectronCharge
 export const ParticleMass = 1e-13
 
 export const BoxSize = 1e-2
+export const CutoffDistance = BoxSize / 3
 export const ParticleCount = 200
 
 export const SurfaceDensity = ParticleCount / Math.pow(BoxSize, 2)

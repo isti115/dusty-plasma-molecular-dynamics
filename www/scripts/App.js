@@ -34,17 +34,27 @@ export default class App {
       { x: 3, y: 3 },
       physics.ParticleCount,
       this.controls.gammaInput.value,
-      this.controls.kappaInput.value
+      this.controls.kappaInput.value,
+      this.controls.pairCorrelationGraph.dataLength
     )
 
     this.update()
   }
 
   update () {
-    this.simulation.gamma = this.controls.gammaInput.value
-    this.simulation.kappa = this.controls.kappaInput.value
+    if (this.simulation.gamma !== this.controls.gammaInput.value) {
+      this.simulation.gamma = this.controls.gammaInput.value
+      this.simulation.initPairCorrelation()
+    }
+
+    if (this.simulation.kappa !== this.controls.kappaInput.value) {
+      this.simulation.kappa = this.controls.kappaInput.value
+      this.simulation.initPairCorrelation()
+    }
 
     this.controls.kineticEnergyGraph.add(this.simulation.kineticEnergy)
+    this.controls.pairCorrelationGraph.data = this.simulation.pairCorrelationData
+    this.controls.pairCorrelationGraph.draw()
 
     this.simulation.update()
     this.display.draw(this.simulation.particles)

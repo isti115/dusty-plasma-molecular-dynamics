@@ -4,14 +4,23 @@ import * as utilities from './utilities.js'
 import * as physics from './physics.js'
 
 export default class Simulation {
-  constructor (size, gridCount, particleCount, gamma, kappa) {
+  constructor (
+    size,
+    gridCount,
+    particleCount,
+    gamma,
+    kappa,
+    pairCorrelationResolution
+  ) {
     this.size = size
     this.gridCount = gridCount
     this.particleCount = particleCount
     this.gamma = gamma
     this.kappa = kappa
+    this.pairCorrelationResolution = pairCorrelationResolution
 
     this.init = this.init.bind(this)
+    this.initPairCorrelation = this.initPairCorrelation.bind(this)
     this.placeParticles = this.placeParticles.bind(this)
     this.makeGrid = this.makeGrid.bind(this)
     this.processParticleWithCellFromIndex = (
@@ -32,6 +41,11 @@ export default class Simulation {
 
     this.stepCount = 0
     this.kineticEnergy = 0
+    this.initPairCorrelation()
+  }
+
+  initPairCorrelation () {
+    this.pairCorrelationData = utilities.generateArray(this.pairCorrelationResolution, () => 0)
   }
 
   placeParticles () {
@@ -95,9 +109,10 @@ export default class Simulation {
       }
 
       const distance = utilities.norm(offset.x, offset.y)
-      const cutoffDistance = physics.BoxSize / 3
 
-      if (distance < cutoffDistance) {
+      if (distance < physics.CutoffDistance) {
+        this.pairCorrelationData[Math.floor((distance / physics.CutoffDistance) * this.pairCorrelationResolution)] += 1 / Math.pow(distance, 2)
+
         const lambdaD = physics.WignerSeitzRadius / this.kappa
 
         const force = (

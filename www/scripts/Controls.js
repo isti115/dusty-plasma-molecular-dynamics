@@ -76,7 +76,7 @@ class Slider {
   }
 
   get value () {
-    const innerValue = new window.Number(this.input.value)
+    const innerValue = window.Number(this.input.value)
 
     return (
       this.modifierFunction === undefined
@@ -91,11 +91,12 @@ class Slider {
 }
 
 class Graph {
-  constructor (name, width, height, dataLength) {
+  constructor (name, width, height, dataLength, useLine) {
     this.name = name
     this.width = width
     this.height = height
     this.dataLength = dataLength
+    this.useLine = useLine
 
     this.init = this.init.bind(this)
     this.add = this.add.bind(this)
@@ -139,10 +140,23 @@ class Graph {
     const maxData = Math.max(...this.data)
     const scale = this.height / (maxData - minData)
 
-    this.context.fillStyle = '#000000'
-    this.data.forEach((d, i) => {
-      this.context.fillRect(i, (this.height - scale * (d - minData)), 2, 2)
-    })
+    if (this.useLine) {
+      this.context.beginPath()
+      // this.context.strokeStyle = '#000000'
+
+      // this.context.moveTo(0, (this.height - scale * (this.data[0] - minData)))
+
+      this.data.forEach((d, i) => {
+        this.context.lineTo(i, (this.height - scale * (d - minData)))
+      })
+
+      this.context.stroke()
+    } else {
+      this.context.fillStyle = '#000000'
+      this.data.forEach((d, i) => {
+        this.context.fillRect(i, (this.height - scale * (d - minData)), 2, 2)
+      })
+    }
 
     this.text.innerHTML = `${this.name}: ${this.data[this.data.length - 1]}`
   }
@@ -174,7 +188,10 @@ export default class Controls {
     this.kappaInput = new Slider('Desired Kappa', 1, 5, 2, 0.1)
     this.container.appendChild(this.kappaInput.container)
 
-    this.kineticEnergyGraph = new Graph('Kinetic Energy', 300, 150, 300)
+    this.kineticEnergyGraph = new Graph('Kinetic Energy', 300, 150, 300, true)
     this.container.appendChild(this.kineticEnergyGraph.container)
+
+    this.pairCorrelationGraph = new Graph('Pair Correlation', 300, 150, 300, true)
+    this.container.appendChild(this.pairCorrelationGraph.container)
   }
 }
