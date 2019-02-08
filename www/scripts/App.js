@@ -4,6 +4,7 @@ import Mirror from './Mirror.js'
 import Simulation from './Simulation.js'
 
 import * as physics from './physics.js'
+import * as utilities from './utilities.js'
 
 const displaySize = 300
 
@@ -38,6 +39,10 @@ export default class App {
       this.controls.pairCorrelationGraph.dataLength
     )
 
+    this.controls.pairCorrelationGraph.data = utilities.generateArray(
+      this.controls.pairCorrelationGraph.dataLength, () => 0
+    )
+
     this.update()
   }
 
@@ -52,8 +57,15 @@ export default class App {
       this.simulation.initPairCorrelation()
     }
 
-    this.controls.kineticEnergyGraph.add(this.simulation.kineticEnergy)
-    this.controls.pairCorrelationGraph.data = this.simulation.pairCorrelationData
+    this.controls.measuredGammaGraph.add(this.simulation.measuredGamma)
+
+    const deltaR = physics.CutoffDistance / this.controls.pairCorrelationGraph.dataLength
+    const area = k => (((k * deltaR) ** 2) * Math.PI) - ((((k - 1) * deltaR) ** 2) * Math.PI)
+    this.controls.pairCorrelationGraph.data = (
+      this.simulation.pairCorrelationData.map(
+        (n, i) => (n / area(i)) / this.simulation.stepCount
+      )
+    )
     this.controls.pairCorrelationGraph.draw()
 
     this.simulation.update()

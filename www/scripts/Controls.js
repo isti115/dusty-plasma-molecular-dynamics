@@ -188,8 +188,8 @@ export default class Controls {
     this.kappaInput = new Slider('Desired Kappa', 1, 5, 2, 0.1)
     this.container.appendChild(this.kappaInput.container)
 
-    this.kineticEnergyGraph = new Graph('Kinetic Energy', 300, 150, 300, true)
-    this.container.appendChild(this.kineticEnergyGraph.container)
+    this.measuredGammaGraph = new Graph('Measured Gamma', 300, 150, 300, true)
+    this.container.appendChild(this.measuredGammaGraph.container)
 
     this.pairCorrelationGraph = new Graph('Pair Correlation', 300, 150, 300, true)
     this.container.appendChild(this.pairCorrelationGraph.container)

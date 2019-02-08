@@ -40,7 +40,11 @@ export default class Simulation {
     this.makeGrid()
 
     this.stepCount = 0
+
+    this.lambdaD = physics.WignerSeitzRadius / this.kappa
+
     this.kineticEnergy = 0
+    this.measuredGamma = 0
     this.initPairCorrelation()
   }
 
@@ -92,6 +96,11 @@ export default class Simulation {
 
     const currentOtherCell = this.grid[boundedCell.y][boundedCell.x]
 
+    const offsetCurrentParticlePosition = {
+      x: currentParticle.position.x - (this.size.x * overflow.x),
+      y: currentParticle.position.y - (this.size.y * overflow.y)
+    }
+
     for (
       let otherParticleIndex = fromIndex;
       otherParticleIndex < currentOtherCell.length;
@@ -100,29 +109,21 @@ export default class Simulation {
       const currentOtherParticle = currentOtherCell[otherParticleIndex]
 
       const offset = {
-        x: currentParticle.position.x - (
-          currentOtherParticle.position.x + (this.size.x * overflow.x)
-        ),
-        y: currentParticle.position.y - (
-          currentOtherParticle.position.y + (this.size.y * overflow.y)
-        )
+        x: offsetCurrentParticlePosition.x - currentOtherParticle.position.x,
+        y: offsetCurrentParticlePosition.y - currentOtherParticle.position.y
       }
 
       const distance = utilities.norm(offset.x, offset.y)
 
       if (distance < physics.CutoffDistance) {
-        this.pairCorrelationData[Math.floor((distance / physics.CutoffDistance) * this.pairCorrelationResolution)] += 1 / (distance ** 2)
-
-        const lambdaD = physics.WignerSeitzRadius / this.kappa
+        this.pairCorrelationData[Math.floor((distance / physics.CutoffDistance) * this.pairCorrelationResolution)]++
 
         const force = (
-          (physics.ParticleCharge ** 2) / (
-            4 * Math.PI * physics.VacuumPermittivity
-          )
+          physics.ParticleChargeSquaredTimesCoulombConstant
         ) * (
-          (1 / (distance ** 2)) + (1 / (distance * lambdaD))
+          (1 / (distance ** 2)) + (1 / (distance * this.lambdaD))
         ) * (
-          Math.exp(-distance / lambdaD)
+          Math.exp(-distance / this.lambdaD)
         )
 
         // 1e10 * (1 / (distance ** 2) + 1 / distance) * Math.exp(-distance) / distance
@@ -183,9 +184,8 @@ export default class Simulation {
     ).reduce((a, b) => a + b, 0) / 2
 
     const desiredTemperature = (
-      (physics.ParticleCharge ** 2) /
+      physics.ParticleChargeSquaredTimesCoulombConstant /
       (
-        4 * Math.PI * physics.VacuumPermittivity *
         physics.WignerSeitzRadius *
         physics.BoltzmannConstant *
         this.gamma
@@ -193,8 +193,16 @@ export default class Simulation {
     )
 
     const measuredTemperature = (
-      this.kineticEnergy /
-      (physics.BoltzmannConstant * this.particleCount)
+      this.kineticEnergy / (physics.BoltzmannConstant * this.particleCount)
+    )
+
+    this.measuredGamma = (
+      physics.ParticleChargeSquaredTimesCoulombConstant /
+      (
+        physics.WignerSeitzRadius *
+        physics.BoltzmannConstant *
+        measuredTemperature
+      )
     )
 
     const dampening = (
@@ -267,14 +275,16 @@ export default class Simulation {
   }
 
   update () {
-    while (this.particles.length > this.particleCount) {
-      this.particles.pop()
-    }
-    while (this.particles.length < this.particleCount) {
-      this.particles.push(Particle.randomParticle(this.size))
-    }
+    // while (this.particles.length > this.particleCount) {
+    //   this.particles.pop()
+    // }
+    // while (this.particles.length < this.particleCount) {
+    //   this.particles.push(Particle.randomParticle(this.size))
+    // }
 
     // this.randomMove(1)
+
+    this.lambdaD = physics.WignerSeitzRadius / this.kappa
 
     const updateMultiplier = 10
 
