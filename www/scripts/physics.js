@@ -14,11 +14,11 @@ export const BoxSize = 1e-2
 export const CutoffDistance = BoxSize / 3
 export const ParticleCount = 200
 
-export const SurfaceDensity = ParticleCount / Math.pow(BoxSize, 2)
+export const SurfaceDensity = ParticleCount / (BoxSize ** 2)
 export const WignerSeitzRadius = 1 / Math.sqrt(SurfaceDensity * Math.PI)
 
 export const PlasmaFrequency = Math.sqrt(
-  (SurfaceDensity * Math.pow(ParticleCharge, 2)) /
+  (SurfaceDensity * (ParticleCharge ** 2)) /
   (2 * VacuumPermittivity * ParticleMass * WignerSeitzRadius)
 )
 

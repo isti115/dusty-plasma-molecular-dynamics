@@ -111,21 +111,21 @@ export default class Simulation {
       const distance = utilities.norm(offset.x, offset.y)
 
       if (distance < physics.CutoffDistance) {
-        this.pairCorrelationData[Math.floor((distance / physics.CutoffDistance) * this.pairCorrelationResolution)] += 1 / Math.pow(distance, 2)
+        this.pairCorrelationData[Math.floor((distance / physics.CutoffDistance) * this.pairCorrelationResolution)] += 1 / (distance ** 2)
 
         const lambdaD = physics.WignerSeitzRadius / this.kappa
 
         const force = (
-          Math.pow(physics.ParticleCharge, 2) / (
+          (physics.ParticleCharge ** 2) / (
             4 * Math.PI * physics.VacuumPermittivity
           )
         ) * (
-          (1 / Math.pow(distance, 2)) + (1 / (distance * lambdaD))
+          (1 / (distance ** 2)) + (1 / (distance * lambdaD))
         ) * (
           Math.exp(-distance / lambdaD)
         )
 
-        // 1e10 * (1 / Math.pow(distance, 2) + 1 / distance) * Math.exp(-distance) / distance
+        // 1e10 * (1 / (distance ** 2) + 1 / distance) * Math.exp(-distance) / distance
 
         const directionalForce = {
           x: (offset.x / distance) * force,
@@ -179,11 +179,11 @@ export default class Simulation {
 
   updateSpeed (dt) {
     this.kineticEnergy = physics.ParticleMass * this.particles.map(
-      p => Math.pow(utilities.norm(p.velocity.x, p.velocity.y), 2)
+      p => (utilities.norm(p.velocity.x, p.velocity.y) ** 2)
     ).reduce((a, b) => a + b, 0) / 2
 
     const desiredTemperature = (
-      Math.pow(physics.ParticleCharge, 2) /
+      (physics.ParticleCharge ** 2) /
       (
         4 * Math.PI * physics.VacuumPermittivity *
         physics.WignerSeitzRadius *
@@ -234,7 +234,7 @@ export default class Simulation {
           (
             p.position.x +
             dt * p.velocity.x +
-            0.5 * Math.pow(dt, 2) * (p.force.x / physics.ParticleMass)
+            0.5 * (dt ** 2) * (p.force.x / physics.ParticleMass)
           )
         ),
 
@@ -244,7 +244,7 @@ export default class Simulation {
           (
             p.position.y +
             dt * p.velocity.y +
-            0.5 * Math.pow(dt, 2) * (p.force.y / physics.ParticleMass)
+            0.5 * (dt ** 2) * (p.force.y / physics.ParticleMass)
           )
         )
       }
