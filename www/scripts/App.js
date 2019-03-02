@@ -1,7 +1,7 @@
 import Controls from './Controls.js'
 import Display from './Display.js'
 import Mirror from './Mirror.js'
-import Simulation from './Simulation.js'
+import SimulationWrapper from './SimulationWrapper.js'
 
 import * as physics from './physics.js'
 import * as utilities from './utilities.js'
@@ -16,6 +16,7 @@ export default class App {
     this.container = container
 
     this.init = this.init.bind(this)
+    this.waitForSimulation = this.waitForSimulation.bind(this)
     this.update = this.update.bind(this)
 
     this.init()
@@ -30,7 +31,7 @@ export default class App {
     this.container.appendChild(this.mirror.canvas)
     this.container.appendChild(this.controls.container)
 
-    this.simulation = new Simulation(
+    this.simulationWrapper = new SimulationWrapper(
       { x: physics.BoxSize, y: physics.BoxSize },
       { x: 3, y: 3 },
       physics.ParticleCount,
@@ -43,35 +44,44 @@ export default class App {
       this.controls.pairCorrelationGraph.dataLength, () => 0
     )
 
-    this.update()
+    this.waitForSimulation()
+  }
+
+  waitForSimulation () {
+    if (!this.simulationWrapper.ready) {
+      window.setTimeout(this.waitForSimulation, 100)
+    } else {
+      this.update()
+    }
   }
 
   update () {
-    if (this.simulation.gamma !== this.controls.gammaInput.value) {
-      this.simulation.gamma = this.controls.gammaInput.value
-      this.simulation.initPairCorrelation()
+    if (this.simulationWrapper.gamma !== this.controls.gammaInput.value) {
+      this.simulationWrapper.gamma = this.controls.gammaInput.value
+      this.simulationWrapper.initPairCorrelation()
     }
 
-    if (this.simulation.kappa !== this.controls.kappaInput.value) {
-      this.simulation.kappa = this.controls.kappaInput.value
-      this.simulation.initPairCorrelation()
+    if (this.simulationWrapper.kappa !== this.controls.kappaInput.value) {
+      this.simulationWrapper.kappa = this.controls.kappaInput.value
+      this.simulationWrapper.initPairCorrelation()
     }
 
-    this.controls.measuredGammaGraph.add(this.simulation.measuredGamma)
+    this.controls.measuredGammaGraph.add(this.simulationWrapper.data.measuredGamma)
 
     const deltaR = physics.CutoffDistance / this.controls.pairCorrelationGraph.dataLength
     const area = k => (((k * deltaR) ** 2) * Math.PI) - ((((k - 1) * deltaR) ** 2) * Math.PI)
     this.controls.pairCorrelationGraph.data = (
-      this.simulation.pairCorrelationData.map(
-        (n, i) => (n / area(i)) / this.simulation.stepCount
+      this.simulationWrapper.data.pairCorrelationData.map(
+        (n, i) => (n / area(i)) / this.simulationWrapper.data.stepCount
       )
     )
     this.controls.pairCorrelationGraph.draw()
 
-    this.simulation.update()
-    this.display.draw(this.simulation.particles)
+    // this.simulationWrapper.update()
+    this.display.draw(this.simulationWrapper.data.particles)
     this.mirror.draw(this.controls.mirrorToggle.value)
 
-    window.setTimeout(this.update, 20)
+    // window.setTimeout(this.update, 20)
+    window.requestAnimationFrame(this.update)
   }
 }

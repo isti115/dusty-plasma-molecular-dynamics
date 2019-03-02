@@ -1,9 +1,6 @@
-import Particle from './Particle.js'
+/* global Particle physics utilities */
 
-import * as utilities from './utilities.js'
-import * as physics from './physics.js'
-
-export default class Simulation {
+class Simulation {
   constructor (
     size,
     gridCount,
@@ -275,18 +272,9 @@ export default class Simulation {
   }
 
   update () {
-    // while (this.particles.length > this.particleCount) {
-    //   this.particles.pop()
-    // }
-    // while (this.particles.length < this.particleCount) {
-    //   this.particles.push(Particle.randomParticle(this.size))
-    // }
-
-    // this.randomMove(1)
-
     this.lambdaD = physics.WignerSeitzRadius / this.kappa
 
-    const updateMultiplier = 10
+    const updateMultiplier = 5
 
     for (let updateIndex = 0; updateIndex < updateMultiplier; updateIndex++) {
       this.makeGrid()
@@ -297,3 +285,7 @@ export default class Simulation {
     }
   }
 }
+
+// Worker export:
+
+this.Simulation = Simulation

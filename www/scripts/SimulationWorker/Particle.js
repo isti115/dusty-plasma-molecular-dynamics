@@ -1,4 +1,4 @@
-export default class Particle {
+class Particle {
   constructor () {
     this.position = { x: 0, y: 0 }
     this.velocity = { x: 0, y: 0 }
@@ -17,3 +17,7 @@ export default class Particle {
     return p
   }
 }
+
+// Worker export:
+
+this.Particle = Particle
