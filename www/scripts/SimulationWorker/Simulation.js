@@ -272,17 +272,11 @@ class Simulation {
   }
 
   update () {
-    this.lambdaD = physics.WignerSeitzRadius / this.kappa
-
-    const updateMultiplier = 5
-
-    for (let updateIndex = 0; updateIndex < updateMultiplier; updateIndex++) {
-      this.makeGrid()
-      this.updatePosition(physics.dt)
-      this.calculateForces()
-      this.updateSpeed(physics.dt)
-      this.stepCount++
-    }
+    this.makeGrid()
+    this.updatePosition(physics.dt)
+    this.calculateForces()
+    this.updateSpeed(physics.dt)
+    this.stepCount++
   }
 }
 

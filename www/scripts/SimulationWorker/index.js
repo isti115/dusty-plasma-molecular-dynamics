@@ -7,6 +7,7 @@ this.importScripts(
   'SimulationWorker.js'
 )
 
+// Note: this === self at the top level.
 const sendMessage = data => this.postMessage(data)
 
 const simulationWorker = new SimulationWorker(sendMessage)

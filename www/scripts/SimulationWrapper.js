@@ -3,12 +3,15 @@
 
 export default class SimulationWrapper {
   constructor (
-    size,
-    gridCount,
-    particleCount,
-    gamma,
-    kappa,
-    pairCorrelationResolution
+    {
+      size,
+      gridCount,
+      particleCount,
+      gamma,
+      kappa,
+      pairCorrelationResolution
+    },
+    fftPort1
   ) {
     this.size = size
     this.gridCount = gridCount
@@ -16,10 +19,10 @@ export default class SimulationWrapper {
     this._gamma = gamma
     this._kappa = kappa
     this.pairCorrelationResolution = pairCorrelationResolution
+    this.fftPort1 = fftPort1
 
     this.init = this.init.bind(this)
     this.initPairCorrelation = this.initPairCorrelation.bind(this)
-    this.sendMessage = this.sendMessage.bind(this)
     this.handleMessage = this.handleMessage.bind(this)
     this.update = this.update.bind(this)
 
@@ -32,7 +35,7 @@ export default class SimulationWrapper {
 
   set gamma (value) {
     this._gamma = value
-    this.sendMessage({
+    this.worker.postMessage({
       type: 'gamma',
       data: this._gamma
     })
@@ -44,7 +47,7 @@ export default class SimulationWrapper {
 
   set kappa (value) {
     this._kappa = value
-    this.sendMessage({
+    this.worker.postMessage({
       type: 'kappa',
       data: this._kappa
     })
@@ -54,7 +57,17 @@ export default class SimulationWrapper {
     this.worker = new window.Worker('./scripts/SimulationWorker/index.js')
     this.worker.addEventListener('message', msg => this.handleMessage(msg.data))
 
-    this.sendMessage({
+    this.worker.postMessage(
+      {
+        type: 'fftPort1',
+        data: this.fftPort1
+      },
+      [
+        this.fftPort1
+      ]
+    )
+
+    this.worker.postMessage({
       type: 'init',
       data: {
         size: this.size,
@@ -72,17 +85,13 @@ export default class SimulationWrapper {
   }
 
   initPairCorrelation () {
-    this.sendMessage({
+    this.worker.postMessage({
       type: 'call',
       data: {
         name: 'initPairCorrelation',
         arguments: []
       }
     })
-  }
-
-  sendMessage (data) {
-    this.worker.postMessage(data)
   }
 
   handleMessage (msg) {
@@ -108,7 +117,7 @@ export default class SimulationWrapper {
   }
 
   update () {
-    this.sendMessage({
+    this.worker.postMessage({
       type: 'update',
       data: {}
     })

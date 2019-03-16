@@ -2,6 +2,7 @@ import Controls from './Controls.js'
 import Display from './Display.js'
 import Mirror from './Mirror.js'
 import SimulationWrapper from './SimulationWrapper.js'
+import FFTWrapper from './FFTWrapper.js'
 
 import * as physics from './physics.js'
 import * as utilities from './utilities.js'
@@ -31,17 +32,38 @@ export default class App {
     this.container.appendChild(this.mirror.canvas)
     this.container.appendChild(this.controls.container)
 
+    this.fftMessageChannel = new window.MessageChannel()
+
     this.simulationWrapper = new SimulationWrapper(
-      { x: physics.BoxSize, y: physics.BoxSize },
-      { x: 3, y: 3 },
-      physics.ParticleCount,
-      this.controls.gammaInput.value,
-      this.controls.kappaInput.value,
-      this.controls.pairCorrelationGraph.dataLength
+      {
+        size: { x: physics.BoxSize, y: physics.BoxSize },
+        gridCount: { x: 3, y: 3 },
+        particleCount: physics.ParticleCount,
+        gamma: this.controls.gammaInput.value,
+        kappa: this.controls.kappaInput.value,
+        pairCorrelationResolution: this.controls.pairCorrelationGraph.dataLength
+      },
+      this.fftMessageChannel.port1
+    )
+
+    this.fftWrapper = new FFTWrapper(
+      this.fftMessageChannel.port2
     )
 
     this.controls.pairCorrelationGraph.data = utilities.generateArray(
       this.controls.pairCorrelationGraph.dataLength, () => 0
+    )
+
+    const offscreen = this.controls.waveDispersionHeatmap.canvas.transferControlToOffscreen()
+
+    this.fftWrapper.worker.postMessage(
+      {
+        type: 'canvas',
+        data: offscreen
+      },
+      [
+        offscreen
+      ]
     )
 
     this.waitForSimulation()
@@ -59,11 +81,13 @@ export default class App {
     if (this.simulationWrapper.gamma !== this.controls.gammaInput.value) {
       this.simulationWrapper.gamma = this.controls.gammaInput.value
       this.simulationWrapper.initPairCorrelation()
+      this.fftWrapper.initBuffer()
     }
 
     if (this.simulationWrapper.kappa !== this.controls.kappaInput.value) {
       this.simulationWrapper.kappa = this.controls.kappaInput.value
       this.simulationWrapper.initPairCorrelation()
+      this.fftWrapper.initBuffer()
     }
 
     this.controls.measuredGammaGraph.add(this.simulationWrapper.data.measuredGamma)
@@ -76,6 +100,11 @@ export default class App {
       )
     )
     this.controls.pairCorrelationGraph.draw()
+
+    if (this.fftWrapper.draw) {
+      this.controls.waveDispersionHeatmap.draw(this.fftWrapper.offscreenCanvas)
+      this.fftWrapper.draw = false
+    }
 
     // this.simulationWrapper.update()
     this.display.draw(this.simulationWrapper.data.particles)

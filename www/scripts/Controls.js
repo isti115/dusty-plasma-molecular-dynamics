@@ -162,6 +162,40 @@ class Graph {
   }
 }
 
+class Heatmap {
+  constructor (name, width, height) {
+    this.name = name
+    this.width = width
+    this.height = height
+
+    this.init = this.init.bind(this)
+    this.draw = this.draw.bind(this)
+
+    this.init()
+  }
+
+  init () {
+    this.container = window.document.createElement('div')
+    this.container.classList.add('heatmap')
+
+    this.text = window.document.createElement('p')
+    this.container.appendChild(this.text)
+
+    this.canvas = window.document.createElement('canvas')
+    this.canvas.width = this.width
+    this.canvas.height = this.height
+    this.container.appendChild(this.canvas)
+
+    // this.context = this.canvas.getContext('2d')
+  }
+
+  draw (source) {
+    // this.context.drawImage(source, 0, 0)
+
+    this.text.innerHTML = `${this.name}`
+  }
+}
+
 export default class Controls {
   constructor () {
     this.init = this.init.bind(this)
@@ -173,8 +207,12 @@ export default class Controls {
     this.container = window.document.createElement('div')
     this.container.classList.add('controls')
 
+    //
+
     this.mirrorToggle = new Toggle('Periodic display', true)
     this.container.appendChild(this.mirrorToggle.container)
+
+    //
 
     this.gammaInput = new Slider(
       'Desired Gamma',
@@ -188,10 +226,17 @@ export default class Controls {
     this.kappaInput = new Slider('Desired Kappa', 1, 5, 2, 0.1)
     this.container.appendChild(this.kappaInput.container)
 
+    //
+
     this.measuredGammaGraph = new Graph('Measured Gamma', 300, 150, 300, true)
     this.container.appendChild(this.measuredGammaGraph.container)
 
     this.pairCorrelationGraph = new Graph('Pair Correlation', 300, 150, 300, true)
     this.container.appendChild(this.pairCorrelationGraph.container)
+
+    //
+
+    this.waveDispersionHeatmap = new Heatmap('Wave Dispersion', 505, 305)
+    this.container.appendChild(this.waveDispersionHeatmap.container)
   }
 }

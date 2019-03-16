@@ -106,3 +106,13 @@
 .graph canvas {
   border: 1px solid black;
 }
+
+/* Heatmap */
+
+.heatmap {
+  margin-top: 20px;
+}
+
+.heatmap canvas {
+  border: 1px solid black;
+}

@@ -1,4 +1,4 @@
-/* global Simulation */
+/* global physics Simulation */
 
 class SimulationWorker {
   constructor (postMessage) {
@@ -21,6 +21,10 @@ class SimulationWorker {
 
   handleMessage (msg) {
     const messageHandlers = {
+      'fftPort1': data => {
+        this.fftPort1 = data
+      },
+
       'gamma': data => {
         this.simulation.gamma = data
       },
@@ -76,7 +80,20 @@ class SimulationWorker {
   }
 
   update () {
-    this.simulation.update()
+    this.simulation.lambdaD = physics.WignerSeitzRadius / this.simulation.kappa
+
+    const updateMultiplier = 5
+
+    for (let updateIndex = 0; updateIndex < updateMultiplier; updateIndex++) {
+      this.simulation.update()
+
+      const xCoordinates = this.simulation.particles.map(p => p.position.x)
+      this.fftPort1.postMessage({
+        type: 'xCoordinates',
+        data: xCoordinates
+      })
+    }
+
     this.sendData()
   }
 }
