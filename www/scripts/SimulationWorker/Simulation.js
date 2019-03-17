@@ -176,6 +176,23 @@ class Simulation {
   }
 
   updateSpeed (dt) {
+    const velocitySum = { x: 0, y: 0 }
+
+    this.particles.forEach(p => {
+      velocitySum.x += p.velocity.x
+      velocitySum.y += p.velocity.y
+    })
+
+    const velocityAverage = {
+      x: velocitySum.x / this.particleCount,
+      y: velocitySum.y / this.particleCount
+    }
+
+    this.particles.forEach(p => {
+      p.velocity.x -= velocityAverage.x
+      p.velocity.y -= velocityAverage.y
+    })
+
     this.kineticEnergy = physics.ParticleMass * this.particles.map(
       p => (utilities.norm(p.velocity.x, p.velocity.y) ** 2)
     ).reduce((a, b) => a + b, 0) / 2

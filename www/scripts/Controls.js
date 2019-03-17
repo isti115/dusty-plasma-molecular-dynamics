@@ -236,7 +236,7 @@ export default class Controls {
 
     //
 
-    this.waveDispersionHeatmap = new Heatmap('Wave Dispersion', 505, 305)
+    this.waveDispersionHeatmap = new Heatmap('Wave Dispersion', 13 * 20, 43 * 5)
     this.container.appendChild(this.waveDispersionHeatmap.container)
   }
 }

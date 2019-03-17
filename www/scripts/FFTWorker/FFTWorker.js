@@ -1,4 +1,4 @@
-/* global utilities Complex fft Heatmap */
+/* global utilities physics Complex fft Heatmap */
 
 class FFTWorker {
   constructor (postMessage) {
@@ -17,8 +17,14 @@ class FFTWorker {
   }
 
   init () {
-    this.bufferLength = 1024
-    this.kCount = 50
+    this.bufferLength = 8192
+    this.kCount = 1 + Math.floor(
+      (3 * physics.BoxSize) / (2 * Math.PI * physics.WignerSeitzRadius)
+    )
+    this.deltaOmega = (2 * Math.PI) / (this.bufferLength * physics.dt)
+    this.omegaCount = Math.round(physics.PlasmaFrequency / this.deltaOmega)
+    console.log('omegaCount', this.omegaCount)
+    console.log('kCount', this.kCount)
 
     this.initBuffer()
   }
@@ -26,8 +32,8 @@ class FFTWorker {
   initBuffer () {
     this.bufferData = []
     this.accumulatedData = utilities.generateArray(
-      this.bufferLength,
-      () => utilities.generateArray(this.kCount, () => 0)
+      this.omegaCount,
+      () => utilities.generateArray(this.kCount - 1, () => 0)
     )
     this.accumulatedDataCount = 0
   }
@@ -56,6 +62,11 @@ class FFTWorker {
 
       'call': data => {
         this[data.name](...data.arguments)
+      },
+
+      'set': data => {
+        this.accumulatedData = data.ad
+        this.accumulatedDataCount = data.adc
       },
 
       'xCoordinates': data => {
@@ -88,6 +99,8 @@ class FFTWorker {
 
         if (this.bufferData.length === this.bufferLength) {
           this.process()
+        } else {
+          this.heatmap.drawProgress(this.bufferData.length / this.bufferLength)
         }
       }
     }
@@ -121,18 +134,27 @@ class FFTWorker {
     // const t1 = performance.now()
     // console.log(`Process time: ${t1 - t0}ms`)
 
-    for (let k = 0; k < this.kCount; k++) {
-      for (let o = 0; o < this.bufferLength; o++) {
-        this.accumulatedData[o][k] += rho2[k][o]
+    for (let k = 0; k < this.kCount - 1; k++) {
+      for (let o = 0; o < this.omegaCount; o++) {
+        this.accumulatedData[o][k] += rho2[k + 1][o + 1]
       }
     }
 
     this.accumulatedDataCount++
-    this.heatmap.draw(this.accumulatedData, this.accumulatedDataCount)
+
+    const averagedData = utilities.generateArray(
+      this.accumulatedData.length,
+      i => utilities.generateArray(
+        this.accumulatedData[i].length,
+        j => this.accumulatedData[i][j] / this.accumulatedDataCount
+      )
+    )
+
+    this.heatmap.draw(averagedData, this.accumulatedDataCount)
 
     this.sendMessage({
       type: 'data',
-      data: rho2
+      data: averagedData
     })
 
     this.bufferData = []
