@@ -72,9 +72,12 @@ class FFTWorker {
       'xCoordinates': data => {
         const sd = utilities.generateArray(
           this.kCount,
-          k => data.reduce(
-            (sum, x) => (Complex.add(
-              sum, Complex.exp(new Complex(0, (k + 1) * x)) // use k + 1 to skip 0
+          m => data.reduce(
+            (sum, p) => (Complex.add(
+              sum, Complex.mul(
+                new Complex(p.vx, 0),
+                Complex.exp(new Complex(0, (m + 1) * (2 * Math.PI / physics.BoxSize) * p.x)) // use k + 1 to skip 0
+              )
             )),
             new Complex(0, 0)
           )
