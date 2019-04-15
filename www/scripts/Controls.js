@@ -158,7 +158,8 @@ class Graph {
       })
     }
 
-    this.text.innerHTML = `${this.name}: ${this.data[this.data.length - 1]}`
+    this.text.innerHTML = `${this.name}:`
+    // this.text.innerHTML = `${this.name}: ${this.data[this.data.length - 1]}`
   }
 }
 
@@ -236,7 +237,7 @@ export default class Controls {
 
     //
 
-    this.waveDispersionHeatmap = new Heatmap('Wave Dispersion', 13 * 20, 43 * 5)
+    this.waveDispersionHeatmap = new Heatmap('Wave Dispersion', 38 * 7, 43 * 5)
     this.container.appendChild(this.waveDispersionHeatmap.container)
   }
 }

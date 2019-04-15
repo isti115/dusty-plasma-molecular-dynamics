@@ -13,8 +13,9 @@ const ParticleCharge = 1e4 * ElectronCharge
 const ParticleMass = 1e-13
 
 const BoxSize = 1e-2
-const CutoffDistance = BoxSize / 3
-const ParticleCount = 250
+const GridSize = 4
+const CutoffDistance = BoxSize / GridSize
+const ParticleCount = 500
 
 const SurfaceDensity = ParticleCount / (BoxSize ** 2)
 const WignerSeitzRadius = 1 / Math.sqrt(SurfaceDensity * Math.PI)

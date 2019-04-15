@@ -20,7 +20,7 @@ class FFTWorker {
     this.bufferLength = 8192
     this.kCount = 1 + Math.floor(
       (3 * physics.BoxSize) / (2 * Math.PI * physics.WignerSeitzRadius)
-    )
+    ) * 2
     this.deltaOmega = (2 * Math.PI) / (this.bufferLength * physics.dt)
     this.omegaCount = Math.round(physics.PlasmaFrequency / this.deltaOmega)
     console.log('omegaCount', this.omegaCount)
@@ -33,7 +33,7 @@ class FFTWorker {
     this.bufferData = []
     this.accumulatedData = utilities.generateArray(
       this.omegaCount,
-      () => utilities.generateArray(this.kCount - 1, () => 0)
+      () => utilities.generateArray(this.kCount, () => 0)
     )
     this.accumulatedDataCount = 0
   }
@@ -76,7 +76,7 @@ class FFTWorker {
             (sum, p) => (Complex.add(
               sum, Complex.mul(
                 new Complex(p.vx, 0),
-                Complex.exp(new Complex(0, (m + 1) * (2 * Math.PI / physics.BoxSize) * p.x)) // use k + 1 to skip 0
+                Complex.exp(new Complex(0, m * (2 * Math.PI / physics.BoxSize) * p.x)) // use k + 1 to skip 0
               )
             )),
             new Complex(0, 0)
@@ -131,15 +131,15 @@ class FFTWorker {
     )
 
     const rho2 = flippedData.map(d => fft.calculate(d)).map(
-      row => row.map(x => Complex.abs(x) ** 2)
+      (row, m) => row.map(x => m === 0 ? 0.1 : Complex.abs(x) ** 2)
     )
 
     // const t1 = performance.now()
     // console.log(`Process time: ${t1 - t0}ms`)
 
-    for (let k = 0; k < this.kCount - 1; k++) {
+    for (let k = 0; k < this.kCount; k++) {
       for (let o = 0; o < this.omegaCount; o++) {
-        this.accumulatedData[o][k] += rho2[k + 1][o + 1]
+        this.accumulatedData[o][k] += rho2[k][o]
       }
     }
 

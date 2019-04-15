@@ -37,7 +37,7 @@ export default class App {
     this.simulationWrapper = new SimulationWrapper(
       {
         size: { x: physics.BoxSize, y: physics.BoxSize },
-        gridCount: { x: 3, y: 3 },
+        gridCount: { x: physics.GridSize, y: physics.GridSize },
         particleCount: physics.ParticleCount,
         gamma: this.controls.gammaInput.value,
         kappa: this.controls.kappaInput.value,

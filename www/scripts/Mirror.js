@@ -47,8 +47,8 @@ export default class Mirror {
       )
     }
 
-    this.context.lineWidth = 1
-    this.context.strokeStyle = 'rgba(128, 128, 128, 0.5)'
+    this.context.lineWidth = 2
+    this.context.strokeStyle = 'rgba(76, 175, 80, 0.85)'
     this.context.strokeRect(
       this.source.width,
       this.source.height,

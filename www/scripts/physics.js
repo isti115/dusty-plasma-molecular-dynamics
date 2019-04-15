@@ -13,8 +13,9 @@ export const ParticleCharge = 1e4 * ElectronCharge
 export const ParticleMass = 1e-13
 
 export const BoxSize = 1e-2
-export const CutoffDistance = BoxSize / 3
-export const ParticleCount = 300
+export const GridSize = 4
+export const CutoffDistance = BoxSize / GridSize
+export const ParticleCount = 500
 
 export const SurfaceDensity = ParticleCount / (BoxSize ** 2)
 export const WignerSeitzRadius = 1 / Math.sqrt(SurfaceDensity * Math.PI)
