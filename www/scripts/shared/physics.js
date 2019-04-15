@@ -1,6 +1,6 @@
 // Physical constants (in SI units)
 
-// export const bohrRadius = 5.2917721067e-11
+// const bohrRadius = 5.2917721067e-11
 const BoltzmannConstant = 1.38064852e-23
 const ElectronCharge = 1.60217662e-19
 const VacuumPermittivity = 8.854187817e-12
@@ -33,21 +33,28 @@ const ParticleChargeSquaredTimesCoulombConstant = (
   (ParticleCharge ** 2) * CoulombConstant
 )
 
-// Worker export:
+//
 
 this.physics = {
   BoltzmannConstant,
   ElectronCharge,
   VacuumPermittivity,
   CoulombConstant,
+
+  //
+
   ParticleCharge,
   ParticleMass,
   BoxSize,
+  GridSize,
   CutoffDistance,
   ParticleCount,
   SurfaceDensity,
   WignerSeitzRadius,
   PlasmaFrequency,
   dt,
+
+  //
+
   ParticleChargeSquaredTimesCoulombConstant
 }

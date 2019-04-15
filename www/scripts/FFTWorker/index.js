@@ -1,7 +1,7 @@
 /* global FFTWorker */
 this.importScripts(
-  'utilities.js',
-  'physics.js',
+  '../shared/utilities.js',
+  '../shared/physics.js',
   'Complex.js',
   'fft.js',
   'Heatmapp.js',

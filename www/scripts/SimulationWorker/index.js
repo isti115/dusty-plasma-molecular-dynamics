@@ -1,7 +1,7 @@
 /* global SimulationWorker */
 this.importScripts(
-  'physics.js',
-  'utilities.js',
+  '../shared/physics.js',
+  '../shared/utilities.js',
   'Particle.js',
   'Simulation.js',
   'SimulationWorker.js'

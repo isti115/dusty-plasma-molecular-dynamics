@@ -4,8 +4,8 @@ import Mirror from './Mirror.js'
 import SimulationWrapper from './SimulationWrapper.js'
 import FFTWrapper from './FFTWrapper.js'
 
-import * as physics from './physics.js'
-import * as utilities from './utilities.js'
+import physics from './physics.js'
+import utilities from './utilities.js'
 
 const displaySize = 300
 

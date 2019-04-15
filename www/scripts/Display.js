@@ -1,4 +1,4 @@
-import * as physics from './physics.js'
+import physics from './physics.js'
 
 export default class Display {
   constructor (width, height) {
