@@ -4,7 +4,7 @@ this.importScripts(
   '../shared/physics.js',
   'Complex.js',
   'fft.js',
-  'Heatmapp.js',
+  'Heatmap.js',
   'FFTWorker.js'
 )
 

@@ -28,8 +28,10 @@ class Heatmap {
   drawPixel (x, y, value) {
     const intensity = 255 * value
 
+    // console.log(value)
+
     // this.context.fillStyle = `hsl(${hue}, 100%, 50%)`
-    // this.context.fillStyle = `hsl(${180 * Math.log(value) / Math.log(1000)}, 100%, 50%)`
+    // this.context.fillStyle = `hsl(${60 + 300 * value}, 100%, 50%)`
     this.context.fillStyle = `rgb(${intensity}, ${intensity}, ${intensity})`
     // this.innerContext.fillRect(x, 43 - y, 1, 1)
     // this.context.fillRect(x, 43 - y, 1, 1)
@@ -45,10 +47,9 @@ class Heatmap {
     this.context.fillStyle = '#FFFFFF'
     this.context.fillRect(0, 0, this.canvas.width, this.canvas.height)
 
-    const minData = Math.min(...data.map(d => Math.min(...d)))
+    // const minData = Math.min(...data.map(d => Math.min(...d)))
     const maxData = Math.max(...data.map(d => Math.max(...d)))
-
-    const scale = 1 / (maxData - minData)
+    // const scale = 1 / (maxData - minData)
 
     const logMin = Math.log(0.01 * maxData)
     const logMax = Math.log(maxData)
@@ -59,7 +60,7 @@ class Heatmap {
     data.forEach((d, o) => {
       d.forEach((v, k) => {
         // const normedValue = (scale * (v - minData))
-        const normedValue = (logScale * (Math.log(v) - logMin))
+        const normedValue = Math.max(0, (logScale * (Math.log(v) - logMin)))
         this.drawPixel(k, (o + 1), normedValue)
       })
     })
