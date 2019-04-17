@@ -1,3 +1,28 @@
+class Button {
+  constructor (name, imageSrc) {
+    this.name = name
+    this.imageSrc = imageSrc
+
+    this.init = this.init.bind(this)
+
+    this.init()
+  }
+
+  init () {
+    this.container = window.document.createElement('div')
+    this.container.classList.add('button')
+
+    this.image = window.document.createElement('img')
+    this.image.src = this.imageSrc
+    this.container.appendChild(this.image)
+
+    this.text = document.createTextNode(this.name)
+    this.container.appendChild(this.text)
+
+    this.container.value = this.name
+  }
+}
+
 class Toggle {
   constructor (name, defaultValue) {
     this.name = name
@@ -207,6 +232,14 @@ export default class Controls {
   init () {
     this.container = window.document.createElement('div')
     this.container.classList.add('controls')
+
+    //
+
+    this.resetButton = new Button('↻ Reset', './images/reset.png')
+    this.container.appendChild(this.resetButton.container)
+
+    this.playPauseButton = new Button('Pause', './images/pause.png')
+    this.container.appendChild(this.playPauseButton.container)
 
     //
 

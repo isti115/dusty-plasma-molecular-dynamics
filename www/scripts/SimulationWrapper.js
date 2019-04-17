@@ -84,6 +84,31 @@ export default class SimulationWrapper {
     this.update()
   }
 
+  playPause () {
+    this.active = !this.active
+
+    if (this.active) {
+      this.update()
+    }
+  }
+
+  reset () {
+    // this.worker.terminate()
+    // this.init()
+
+    this.worker.postMessage({
+      type: 'init',
+      data: {
+        size: this.size,
+        gridCount: this.gridCount,
+        particleCount: this.particleCount,
+        gamma: this._gamma,
+        kappa: this._kappa,
+        pairCorrelationResolution: this.pairCorrelationResolution
+      }
+    })
+  }
+
   initPairCorrelation () {
     this.worker.postMessage({
       type: 'call',

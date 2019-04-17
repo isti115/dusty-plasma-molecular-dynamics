@@ -16,7 +16,7 @@ class SimulationWorker {
   }
 
   init () {
-    this.active = false
+    // this.active = false
   }
 
   handleMessage (msg) {

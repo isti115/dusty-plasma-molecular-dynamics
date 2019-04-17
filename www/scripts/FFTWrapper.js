@@ -22,7 +22,6 @@ export default class FFTWrapper {
       ]
     )
 
-    this.draw = false
     this.data = []
   }
 
@@ -40,8 +39,6 @@ export default class FFTWrapper {
     const messageHandlers = {
       'data': data => {
         this.data = data
-
-        this.draw = true
       }
     }
 

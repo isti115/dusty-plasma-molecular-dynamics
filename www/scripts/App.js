@@ -29,8 +29,24 @@ export default class App {
 
     this.controls = new Controls()
 
-    this.container.appendChild(this.mirror.canvas)
+    this.controls.playPauseButton.container.addEventListener('click', () => {
+      this.simulationWrapper.playPause()
+
+      ;[
+        this.controls.playPauseButton.text.nodeValue,
+        this.controls.playPauseButton.image.src
+      ] = this.simulationWrapper.active
+        ? ['Pause', './images/pause.png']
+        : ['Continue', './images/play.png']
+    })
+
+    this.controls.resetButton.container.addEventListener('click', () => {
+      this.simulationWrapper.reset()
+      this.fftWrapper.initBuffer()
+    })
+
     this.container.appendChild(this.controls.container)
+    this.container.appendChild(this.mirror.canvas)
 
     this.fftMessageChannel = new window.MessageChannel()
 
@@ -90,7 +106,9 @@ export default class App {
       this.fftWrapper.initBuffer()
     }
 
-    this.controls.measuredGammaGraph.add(this.simulationWrapper.data.measuredGamma)
+    if (this.simulationWrapper.active) {
+      this.controls.measuredGammaGraph.add(this.simulationWrapper.data.measuredGamma)
+    }
 
     const deltaR = physics.CutoffDistance / this.controls.pairCorrelationGraph.dataLength
     const area = k => (((k * deltaR) ** 2) * Math.PI) - ((((k - 1) * deltaR) ** 2) * Math.PI)
@@ -101,12 +119,6 @@ export default class App {
     )
     this.controls.pairCorrelationGraph.draw()
 
-    if (this.fftWrapper.draw) {
-      this.controls.waveDispersionHeatmap.draw(this.fftWrapper.offscreenCanvas)
-      this.fftWrapper.draw = false
-    }
-
-    // this.simulationWrapper.update()
     this.display.draw(this.simulationWrapper.data.particles)
     this.mirror.draw(this.controls.mirrorToggle.value)
 
