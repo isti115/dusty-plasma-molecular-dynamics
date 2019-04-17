@@ -69,10 +69,10 @@ class FFTWorker {
         this.accumulatedDataCount = data.adc
       },
 
-      'xCoordinates': data => {
+      'coordinates': data => {
         const sd = utilities.generateArray(
           this.kCount,
-          m => data.reduce(
+          m => data.x.reduce(
             (sum, p) => (Complex.add(
               sum, Complex.mul(
                 new Complex(p.vx, 0),
@@ -82,6 +82,27 @@ class FFTWorker {
             new Complex(0, 0)
           )
         )
+
+        // const sdY = utilities.generateArray(
+        //   this.kCount,
+        //   m => data.y.reduce(
+        //     (sum, p) => (Complex.add(
+        //       sum, Complex.mul(
+        //         new Complex(p.vy, 0),
+        //         Complex.exp(new Complex(0, m * (2 * Math.PI / physics.BoxSize) * p.y)) // use k + 1 to skip 0
+        //       )
+        //     )),
+        //     new Complex(0, 0)
+        //   )
+        // )
+
+        // const sd = utilities.generateArray(
+        //   this.kCount,
+        //   m => Complex.div(
+        //     Complex.add(sdX[m], sdY[m]),
+        //     new Complex(2, 0)
+        //   )
+        // )
 
         // const summedList = []
 

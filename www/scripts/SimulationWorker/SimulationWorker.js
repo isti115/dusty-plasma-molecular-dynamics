@@ -87,15 +87,29 @@ class SimulationWorker {
     for (let updateIndex = 0; updateIndex < updateMultiplier; updateIndex++) {
       this.simulation.update()
 
-      const xCoordinates = this.simulation.particles.map(
-        p => ({
-          x: p.position.x,
-          vx: p.velocity.x
-        })
-      )
+      const coordinates = {
+        x: (
+          this.simulation.particles.map(
+            p => ({
+              x: p.position.x,
+              vx: p.velocity.x
+            })
+          )
+        )
+        // ,
+        // y: (
+        //   this.simulation.particles.map(
+        //     p => ({
+        //       y: p.position.y,
+        //       vy: p.velocity.y
+        //     })
+        //   )
+        // )
+      }
+
       this.fftPort1.postMessage({
-        type: 'xCoordinates',
-        data: xCoordinates
+        type: 'coordinates',
+        data: coordinates
       })
     }
 

@@ -19,6 +19,15 @@ class Complex {
     )
   }
 
+  static div (x, y) {
+    return y.im === 0
+      ? new Complex(x.re / y.re, x.im / y.re)
+      : Complex.div(
+        Complex.mul(x, Complex.conj(y)),
+        Complex.mul(y, Complex.conj(y))
+      )
+  }
+
   static exp (x) {
     const len = Math.exp(x.re)
 
@@ -30,6 +39,10 @@ class Complex {
 
   static abs (x) {
     return Math.sqrt((x.re ** 2) + (x.im ** 2))
+  }
+
+  static conj (x) {
+    return new Complex(x.re, -x.im)
   }
 }
 
