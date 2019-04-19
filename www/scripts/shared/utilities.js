@@ -2,7 +2,7 @@ const boundedValue = (from, to, value) => (
   ((((value - from) % (to - from)) + (to - from)) % (to - from)) + from
 )
 
-const generateArray = (length, generator) => (
+const generateArray = (length, generator = (x => x)) => (
   [...new Array(length)].map((_, i) => generator(i))
 )
 

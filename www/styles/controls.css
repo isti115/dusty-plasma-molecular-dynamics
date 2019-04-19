@@ -3,8 +3,15 @@
 
   vertical-align: middle;
 
+  padding-left: 7px;
+  border-radius: 10px;
+
+  background-color: rgba(76, 175, 80, 0.1);
+
   --gray-color: #d3d3d3;
   --accent-color: #4CAF50;
+  --scale-size: 50px;
+  --scale-margin-size: 10px;
 }
 
 .controls .title {
@@ -20,7 +27,7 @@
 .button {
   display: inline-block;
 
-  width: 125px;
+  width: 140px;
   height: 25px;
 
   margin: 10px 10px 10px 0px;
@@ -131,7 +138,7 @@
 
 .slider input[type="range"] {
   -webkit-appearance: none;
-  width: 250px;
+  width: 350px;
   height: 15px;
   border-radius: 5px;
   background: var(--gray-color);
@@ -165,6 +172,7 @@
 
 .heatmap canvas.heatmapCanvas {
   border: 1px solid black;
+  background-color: white;
 }
 
 /* Scale */
@@ -176,38 +184,40 @@
 
 .scale p {
   margin: 0px;
+  font-size: 20px;
 }
 
 .scale.left {
-  width: 50px;
+  width: var(--scale-size);
 }
 
 .scale.left p {
   position: absolute;
-  top: 50%;
+    top: 50%;
 
   transform-origin: top left;
-  transform: rotate(-90deg) translateX(-50%) ;
+  transform: rotate(-90deg) translateX(-50%);
 }
 
 .scale.left canvas {
   position: relative;
-  left: 50%;
+    top: var(--scale-margin-size);
+    left: 50%;
 }
 
 .scale.bottom {
-  height: 50px;
+  height: var(--scale-size);
 
   position: relative;
-    left: 50px;
+    left: calc(var(--scale-size) - var(--scale-margin-size) + 1px);
 
   margin-top: -5px;
 }
 
 .scale.bottom p {
   position: absolute;
-    top: 50%;
+    top: 35%;
     left: 50%;
 
-  transform: translateX(-50%) ;
+  transform: translateX(-50%);
 }

@@ -36,6 +36,10 @@ class FFTWorker {
       () => utilities.generateArray(this.kCount, () => 0)
     )
     this.accumulatedDataCount = 0
+
+    if (this.heatmap) {
+      this.heatmap.clearProgress()
+    }
   }
 
   handleMessage (msg) {

@@ -22,7 +22,7 @@ export default class SimulationWrapper {
     this.fftPort1 = fftPort1
 
     this.init = this.init.bind(this)
-    this.initPairCorrelation = this.initPairCorrelation.bind(this)
+    this.initDataCollection = this.initDataCollection.bind(this)
     this.handleMessage = this.handleMessage.bind(this)
     this.update = this.update.bind(this)
 
@@ -109,11 +109,11 @@ export default class SimulationWrapper {
     })
   }
 
-  initPairCorrelation () {
+  initDataCollection () {
     this.worker.postMessage({
       type: 'call',
       data: {
-        name: 'initPairCorrelation',
+        name: 'initDataCollection',
         arguments: []
       }
     })

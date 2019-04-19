@@ -49,7 +49,7 @@ export default class App {
       physics.CutoffDistance / physics.WignerSeitzRadius
     )
     // this.controls.pairCorrelationGraph.bottomScale.to = 5.75
-    this.controls.pairCorrelationGraph.bottomScale.markers = utilities.generateArray(10, x => x)
+    this.controls.pairCorrelationGraph.bottomScale.markers = utilities.generateArray(11)
 
     this.container.appendChild(this.controls.container)
 
@@ -106,13 +106,13 @@ export default class App {
     if (this.simulationWrapper.gamma !== this.controls.gammaInput.value) {
       this.controls.measuredGammaGraph.target = this.controls.gammaInput.value
       this.simulationWrapper.gamma = this.controls.gammaInput.value
-      this.simulationWrapper.initPairCorrelation()
+      this.simulationWrapper.initDataCollection()
       this.fftWrapper.initBuffer()
     }
 
     if (this.simulationWrapper.kappa !== this.controls.kappaInput.value) {
       this.simulationWrapper.kappa = this.controls.kappaInput.value
-      this.simulationWrapper.initPairCorrelation()
+      this.simulationWrapper.initDataCollection()
       this.fftWrapper.initBuffer()
     }
 
@@ -146,7 +146,7 @@ export default class App {
 
       this.controls.measuredGammaGraph.bottomScale.markers = (
         [...new Array(4)].map((_, i) => (
-          Math.round(this.controls.measuredGammaGraph.bottomScale.from) + 3 * i
+          (Math.round(this.controls.measuredGammaGraph.bottomScale.from / 3) * 3) + 3 * i
         ))
       )
     }

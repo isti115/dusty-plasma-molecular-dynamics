@@ -1,9 +1,13 @@
 import physics from './physics.js'
+import utilities from './utilities.js'
 
 const makeTitle = title => {
   const text = window.document.createElement('p')
   text.classList.add('title')
+
   text.appendChild(window.document.createTextNode(title))
+  // text.innerHTML = title
+
   return text
 }
 
@@ -121,13 +125,14 @@ class Slider {
 }
 
 class Graph {
-  constructor (name, scales, width, height, dataLength, useLine) {
+  constructor (name, scales, width, height, dataLength, useLine, markers = []) {
     this.name = name
     this.scales = scales
     this.width = width
     this.height = height
     this.dataLength = dataLength
     this.useLine = useLine
+    this.markers = markers
 
     this.init = this.init.bind(this)
     this.add = this.add.bind(this)
@@ -201,7 +206,10 @@ class Graph {
     }
 
     this.context.fillStyle = 'rgba(76, 175, 80, 0.5)'
-    this.context.fillRect(0, -1 + this.height - (1 / maxData) * this.height, this.width, 2)
+    this.markers.forEach(value => {
+      this.context.fillRect(
+        0, -1 + this.height - (value / maxData) * this.height, this.width, 3)
+    })
 
     // this.text.innerHTML = `${this.name}: ${this.data[this.data.length - 1]}`
 
@@ -256,22 +264,23 @@ class Heatmap {
 
     // this.text.innerHTML = `${this.name}`
 
-    // physics.PlasmaFrequency
-
-    // 43 sor
+    // 43 rows
     this.leftScale.from = 0
     this.leftScale.to = 1
-    this.leftScale.markers = [0, 0.2, 0.4, 0.6, 0.8, 1]
+    this.leftScale.markers = utilities.generateArray(6, x => x / 5) // [0, 0.2, 0.4, 0.6, 0.8, 1]
 
-    // 31 oszlop
+    // 31 columns
     this.bottomScale.from = 0
     this.bottomScale.to = 5.0
-    this.bottomScale.markers = [0, 1, 2, 3, 4, 5]
+    this.bottomScale.markers = utilities.generateArray(6) // [0, 1, 2, 3, 4, 5]
 
     this.leftScale.draw()
     this.bottomScale.draw()
   }
 }
+
+const scaleCanvasSize = 25
+const scaleMarginSize = 10
 
 class Scale {
   constructor (name, unit, size, isVertical) {
@@ -291,12 +300,20 @@ class Scale {
     this.container.classList.add(this.isVertical ? 'left' : 'bottom')
 
     this.text = window.document.createElement('p')
-    this.text.appendChild(window.document.createTextNode(this.name))
+    // this.text.appendChild(window.document.createTextNode(this.name))
+    this.text.innerHTML = this.name
     this.container.appendChild(this.text)
 
     this.canvas = window.document.createElement('canvas')
-    this.canvas.width = this.isVertical ? 25 : this.size
-    this.canvas.height = this.isVertical ? this.size : 25
+
+    this.canvas.width = this.isVertical
+      ? scaleCanvasSize
+      : (this.size + 2 * scaleMarginSize)
+
+    this.canvas.height = this.isVertical
+      ? (this.size + 2 * scaleMarginSize)
+      : scaleCanvasSize
+
     this.container.appendChild(this.canvas)
 
     this.context = this.canvas.getContext('2d')
@@ -318,8 +335,8 @@ class Scale {
 
       this.context.fillText(
         `${Math.round(value * 100) / 100}${this.unit}`,
-        this.isVertical ? 20 : offset * this.size,
-        this.isVertical ? (this.size - offset * this.size) : 10
+        this.isVertical ? 20 : offset * this.size + scaleMarginSize,
+        this.isVertical ? (this.size - offset * this.size + scaleMarginSize + 2) : 10
       )
     })
 
@@ -369,15 +386,15 @@ export default class Controls {
 
     this.measuredGammaGraph = new Graph(
       'Measured Gamma',
-      { xName: 'ω_p * t', xUnit: '', yName: 'Γ', yUnit: '' },
+      { xName: 'ω<sub>p</sub> * t', xUnit: '', yName: 'Γ', yUnit: '' },
       300, 150, 300, true
     )
     this.container.appendChild(this.measuredGammaGraph.container)
 
     this.pairCorrelationGraph = new Graph(
       'Pair Correlation',
-      { xName: 'r / a_ws', xUnit: '', yName: 'g', yUnit: '' },
-      300, 150, 300, true
+      { xName: 'r / a<sub>ws</sub>', xUnit: '', yName: 'g', yUnit: '' },
+      300, 150, 300, true, [1]
     )
     this.container.appendChild(this.pairCorrelationGraph.container)
 
@@ -385,8 +402,8 @@ export default class Controls {
 
     this.waveDispersionHeatmap = new Heatmap(
       'Wave Dispersion',
-      { xName: 'k * a_ws', xUnit: '', yName: 'ω / ω_p', yUnit: '' },
-      Math.round(physics.KLimit / physics.KStepSize) * 7,
+      { xName: 'k * a<sub>ws</sub>', xUnit: '', yName: 'ω / ω<sub>p</sub>', yUnit: '' },
+      Math.round(physics.KLimit / physics.KStepSize) * 9.4,
       Math.round(physics.PlasmaFrequency / physics.OmegaStepSize) * 5
     )
     this.container.appendChild(this.waveDispersionHeatmap.container)

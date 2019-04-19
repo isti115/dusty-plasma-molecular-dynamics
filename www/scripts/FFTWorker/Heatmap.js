@@ -17,7 +17,7 @@ class Heatmap {
     // this.innerCanvas = new OffscreenCanvas(13, 43)
     // this.innerContext = this.innerCanvas.getContext('2d')
 
-    this.scale = { x: 7, y: 5 }
+    this.scale = { x: 9.4, y: 5 }
   }
 
   drawProgress (progress) {
@@ -25,10 +25,13 @@ class Heatmap {
     this.context.fillRect(0, 0, progress * this.canvas.width, 3)
   }
 
+  clearProgress () {
+    this.context.fillStyle = '#FFFFFF'
+    this.context.fillRect(0, 0, this.canvas.width, 3)
+  }
+
   drawPixel (x, y, value) {
     const intensity = 255 * value
-
-    // console.log(value)
 
     // this.context.fillStyle = `hsl(${hue}, 100%, 50%)`
     // this.context.fillStyle = `hsl(${60 + 300 * value}, 100%, 50%)`
@@ -38,7 +41,7 @@ class Heatmap {
     this.context.fillRect(
       this.scale.x * x,
       this.canvas.height - this.scale.y * y,
-      this.scale.x,
+      this.scale.x + 1, // + 1 pixel is required to avoid vertical lines due to fractional scaling
       this.scale.y
     )
   }

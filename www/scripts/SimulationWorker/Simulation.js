@@ -17,7 +17,7 @@ class Simulation {
     this.pairCorrelationResolution = pairCorrelationResolution
 
     this.init = this.init.bind(this)
-    this.initPairCorrelation = this.initPairCorrelation.bind(this)
+    this.initDataCollection = this.initDataCollection.bind(this)
     this.placeParticles = this.placeParticles.bind(this)
     this.makeGrid = this.makeGrid.bind(this)
     this.processParticleWithCellFromIndex = (
@@ -42,10 +42,11 @@ class Simulation {
 
     this.kineticEnergy = 0
     this.measuredGamma = 0
-    this.initPairCorrelation()
+    this.initDataCollection()
   }
 
-  initPairCorrelation () {
+  initDataCollection () {
+    this.stepCount = 0
     this.pairCorrelationData = utilities.generateArray(this.pairCorrelationResolution, () => 0)
   }
 
