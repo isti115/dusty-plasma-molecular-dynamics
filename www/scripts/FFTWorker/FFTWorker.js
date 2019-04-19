@@ -17,14 +17,14 @@ class FFTWorker {
   }
 
   init () {
-    this.bufferLength = 8192
+    this.bufferLength = physics.WaveDispersionBufferLength
     this.kCount = 1 + Math.floor(
       (3 * physics.BoxSize) / (2 * Math.PI * physics.WignerSeitzRadius)
     ) * 2
     this.deltaOmega = (2 * Math.PI) / (this.bufferLength * physics.dt)
     this.omegaCount = Math.round(physics.PlasmaFrequency / this.deltaOmega)
-    console.log('omegaCount', this.omegaCount)
-    console.log('kCount', this.kCount)
+    // console.log('omegaCount', this.omegaCount)
+    // console.log('kCount', this.kCount)
 
     this.initBuffer()
   }

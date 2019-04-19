@@ -3,8 +3,17 @@
 
   vertical-align: middle;
 
+  --gray-color: #d3d3d3;
   --accent-color: #4CAF50;
 }
+
+.controls .title {
+  text-decoration: underline;
+}
+
+/* .controls div {
+  display: inline-block;
+} */
 
 /* Button */
 
@@ -49,16 +58,18 @@
 
 /* Toggle */
 
+.toggle {
+  margin: 12px 0px;
+}
+
 .toggle label {
   /* display: block; */
   position: relative;
+
   padding-left: 31px;
-  margin-bottom: 12px;
   cursor: pointer;
   font-size: 17px;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
+
   user-select: none;
 }
 
@@ -78,7 +89,7 @@
   left: 0;
   height: 21px;
   width: 21px;
-  background-color: #d3d3d3;
+  background-color: var(--gray-color);
 }
 
 /* On mouse-over, add a grey background color */
@@ -123,16 +134,12 @@
   width: 250px;
   height: 15px;
   border-radius: 5px;
-  background: #d3d3d3;
+  background: var(--gray-color);
   outline: none;
-  opacity: 0.7;
-  -webkit-transition: .2s;
-  transition: opacity .2s;
 }
 
 .slider input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
-  appearance: none;
   width: 25px;
   height: 25px;
   border-radius: 50%;
@@ -146,7 +153,7 @@
   margin-top: 20px;
 }
 
-.graph canvas {
+.graph canvas.graphCanvas {
   border: 1px solid black;
 }
 
@@ -156,6 +163,51 @@
   margin-top: 20px;
 }
 
-.heatmap canvas {
+.heatmap canvas.heatmapCanvas {
   border: 1px solid black;
+}
+
+/* Scale */
+
+.scale {
+  display: inline-block;
+  position: relative;
+}
+
+.scale p {
+  margin: 0px;
+}
+
+.scale.left {
+  width: 50px;
+}
+
+.scale.left p {
+  position: absolute;
+  top: 50%;
+
+  transform-origin: top left;
+  transform: rotate(-90deg) translateX(-50%) ;
+}
+
+.scale.left canvas {
+  position: relative;
+  left: 50%;
+}
+
+.scale.bottom {
+  height: 50px;
+
+  position: relative;
+    left: 50px;
+
+  margin-top: -5px;
+}
+
+.scale.bottom p {
+  position: absolute;
+    top: 50%;
+    left: 50%;
+
+  transform: translateX(-50%) ;
 }

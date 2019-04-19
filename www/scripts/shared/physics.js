@@ -27,6 +27,12 @@ const PlasmaFrequency = Math.sqrt(
 
 const dt = 1 / (PlasmaFrequency * 30)
 
+const WaveDispersionBufferLength = 8192
+const OmegaStepSize = 2 * Math.PI / (dt * WaveDispersionBufferLength)
+
+const KLimit = 5
+const KStepSize = (2 * Math.PI / BoxSize) * WignerSeitzRadius
+
 //
 
 const ParticleChargeSquaredTimesCoulombConstant = (
@@ -53,6 +59,11 @@ this.physics = {
   WignerSeitzRadius,
   PlasmaFrequency,
   dt,
+
+  WaveDispersionBufferLength,
+  OmegaStepSize,
+  KLimit,
+  KStepSize,
 
   //
 

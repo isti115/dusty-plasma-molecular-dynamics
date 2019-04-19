@@ -4,3 +4,12 @@
   - wavedisp: (k * aws) / (omega)
 
 - play/pause, reset buttons
+
+- number alignment
+- lelógó nullák
+- alsó indexek
+
+-----
+
+todo:
+- pcf scaling

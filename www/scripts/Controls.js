@@ -1,3 +1,12 @@
+import physics from './physics.js'
+
+const makeTitle = title => {
+  const text = window.document.createElement('p')
+  text.classList.add('title')
+  text.appendChild(window.document.createTextNode(title))
+  return text
+}
+
 class Button {
   constructor (name, imageSrc) {
     this.name = name
@@ -63,7 +72,7 @@ class Toggle {
 }
 
 class Slider {
-  constructor (name, min, max, defaultValue, stepSize, modifierFunction) {
+  constructor (name, min, max, defaultValue, stepSize, modifierFunction = (x => x)) {
     this.name = name
     this.min = min
     this.max = max
@@ -103,11 +112,7 @@ class Slider {
   get value () {
     const innerValue = window.Number(this.input.value)
 
-    return (
-      this.modifierFunction === undefined
-        ? innerValue
-        : this.modifierFunction(innerValue)
-    )
+    return this.modifierFunction(innerValue)
   }
 
   set value (value) {
@@ -116,8 +121,9 @@ class Slider {
 }
 
 class Graph {
-  constructor (name, width, height, dataLength, useLine) {
+  constructor (name, scales, width, height, dataLength, useLine) {
     this.name = name
+    this.scales = scales
     this.width = width
     this.height = height
     this.dataLength = dataLength
@@ -134,17 +140,26 @@ class Graph {
     this.container = window.document.createElement('div')
     this.container.classList.add('graph')
 
-    this.text = window.document.createElement('p')
+    this.text = makeTitle(`${this.name}:`)
     this.container.appendChild(this.text)
 
     this.canvas = window.document.createElement('canvas')
+    this.canvas.classList.add('graphCanvas')
     this.canvas.width = this.width
     this.canvas.height = this.height
-    this.container.appendChild(this.canvas)
 
     this.context = this.canvas.getContext('2d')
 
+    this.leftScale = new Scale(this.scales.yName, this.scales.yUnit, this.height, true)
+    this.bottomScale = new Scale(this.scales.xName, this.scales.xUnit, this.width, false)
+
+    this.container.appendChild(this.leftScale.container)
+    this.container.appendChild(this.canvas)
+    this.container.appendChild(window.document.createElement('br'))
+    this.container.appendChild(this.bottomScale.container)
+
     this.data = []
+    this.target = undefined
   }
 
   add (data) {
@@ -161,8 +176,10 @@ class Graph {
     this.context.fillStyle = '#FFFFFF'
     this.context.fillRect(0, 0, this.canvas.width, this.canvas.height)
 
-    const minData = Math.min(...this.data)
-    const maxData = Math.max(...this.data)
+    const [minData, maxData] = this.target === undefined
+      ? [Math.min(...this.data), Math.max(...this.data)]
+      : [0, (this.target * 1.2)]
+
     const scale = this.height / (maxData - minData)
 
     if (this.useLine) {
@@ -183,14 +200,23 @@ class Graph {
       })
     }
 
-    this.text.innerHTML = `${this.name}:`
+    this.context.fillStyle = 'rgba(76, 175, 80, 0.5)'
+    this.context.fillRect(0, -1 + this.height - (1 / maxData) * this.height, this.width, 2)
+
     // this.text.innerHTML = `${this.name}: ${this.data[this.data.length - 1]}`
+
+    this.leftScale.from = minData
+    this.leftScale.to = maxData
+    // this.leftScale.markers = [0, this.target, 1.2 * this.target]
+    this.leftScale.draw()
+    this.bottomScale.draw()
   }
 }
 
 class Heatmap {
-  constructor (name, width, height) {
+  constructor (name, scales, width, height) {
     this.name = name
+    this.scales = scales
     this.width = width
     this.height = height
 
@@ -204,21 +230,100 @@ class Heatmap {
     this.container = window.document.createElement('div')
     this.container.classList.add('heatmap')
 
-    this.text = window.document.createElement('p')
+    this.text = makeTitle(`${this.name}:`)
     this.container.appendChild(this.text)
 
     this.canvas = window.document.createElement('canvas')
+    this.canvas.classList.add('heatmapCanvas')
     this.canvas.width = this.width
     this.canvas.height = this.height
+
+    this.leftScale = new Scale(this.scales.yName, this.scales.yUnit, this.height, true)
+    this.bottomScale = new Scale(this.scales.xName, this.scales.xUnit, this.width, false)
+
+    this.container.appendChild(this.leftScale.container)
     this.container.appendChild(this.canvas)
+    this.container.appendChild(window.document.createElement('br'))
+    this.container.appendChild(this.bottomScale.container)
 
     // this.context = this.canvas.getContext('2d')
+
+    this.draw()
   }
 
   draw (source) {
     // this.context.drawImage(source, 0, 0)
 
-    this.text.innerHTML = `${this.name}`
+    // this.text.innerHTML = `${this.name}`
+
+    // physics.PlasmaFrequency
+
+    // 43 sor
+    this.leftScale.from = 0
+    this.leftScale.to = 1
+    this.leftScale.markers = [0, 0.2, 0.4, 0.6, 0.8, 1]
+
+    // 31 oszlop
+    this.bottomScale.from = 0
+    this.bottomScale.to = 5.0
+    this.bottomScale.markers = [0, 1, 2, 3, 4, 5]
+
+    this.leftScale.draw()
+    this.bottomScale.draw()
+  }
+}
+
+class Scale {
+  constructor (name, unit, size, isVertical) {
+    this.name = name
+    this.unit = unit
+    this.size = size
+    this.isVertical = isVertical
+
+    this.init = this.init.bind(this)
+
+    this.init()
+  }
+
+  init () {
+    this.container = window.document.createElement('div')
+    this.container.classList.add('scale')
+    this.container.classList.add(this.isVertical ? 'left' : 'bottom')
+
+    this.text = window.document.createElement('p')
+    this.text.appendChild(window.document.createTextNode(this.name))
+    this.container.appendChild(this.text)
+
+    this.canvas = window.document.createElement('canvas')
+    this.canvas.width = this.isVertical ? 25 : this.size
+    this.canvas.height = this.isVertical ? this.size : 25
+    this.container.appendChild(this.canvas)
+
+    this.context = this.canvas.getContext('2d')
+
+    this.from = 0
+    this.to = 0
+
+    this.markers = []
+  }
+
+  draw () {
+    this.context.clearRect(0, 0, this.canvas.width, this.canvas.height)
+    this.context.fillStyle = '#000000'
+    this.context.textAlign = this.isVertical ? 'right' : 'center'
+
+    // ;[this.from, ...this.markers, this.to].forEach(value => {
+    this.markers.forEach(value => {
+      const offset = (value - this.from) / (this.to - this.from)
+
+      this.context.fillText(
+        `${Math.round(value * 100) / 100}${this.unit}`,
+        this.isVertical ? 20 : offset * this.size,
+        this.isVertical ? (this.size - offset * this.size) : 10
+      )
+    })
+
+    // this.context.fillRect(0, 0, this.width, this.height)
   }
 }
 
@@ -235,7 +340,7 @@ export default class Controls {
 
     //
 
-    this.resetButton = new Button('↻ Reset', './images/reset.png')
+    this.resetButton = new Button('Reset', './images/reset.png')
     this.container.appendChild(this.resetButton.container)
 
     this.playPauseButton = new Button('Pause', './images/pause.png')
@@ -262,15 +367,28 @@ export default class Controls {
 
     //
 
-    this.measuredGammaGraph = new Graph('Measured Gamma', 300, 150, 300, true)
+    this.measuredGammaGraph = new Graph(
+      'Measured Gamma',
+      { xName: 'ω_p * t', xUnit: '', yName: 'Γ', yUnit: '' },
+      300, 150, 300, true
+    )
     this.container.appendChild(this.measuredGammaGraph.container)
 
-    this.pairCorrelationGraph = new Graph('Pair Correlation', 300, 150, 300, true)
+    this.pairCorrelationGraph = new Graph(
+      'Pair Correlation',
+      { xName: 'r / a_ws', xUnit: '', yName: 'g', yUnit: '' },
+      300, 150, 300, true
+    )
     this.container.appendChild(this.pairCorrelationGraph.container)
 
     //
 
-    this.waveDispersionHeatmap = new Heatmap('Wave Dispersion', 38 * 7, 43 * 5)
+    this.waveDispersionHeatmap = new Heatmap(
+      'Wave Dispersion',
+      { xName: 'k * a_ws', xUnit: '', yName: 'ω / ω_p', yUnit: '' },
+      Math.round(physics.KLimit / physics.KStepSize) * 7,
+      Math.round(physics.PlasmaFrequency / physics.OmegaStepSize) * 5
+    )
     this.container.appendChild(this.waveDispersionHeatmap.container)
   }
 }

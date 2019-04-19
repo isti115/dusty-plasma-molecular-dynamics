@@ -24,9 +24,6 @@ export default class App {
   }
 
   init () {
-    this.display = new Display(displaySize, displaySize)
-    this.mirror = new Mirror(this.display.canvas, 3, 3)
-
     this.controls = new Controls()
 
     this.controls.playPauseButton.container.addEventListener('click', () => {
@@ -45,7 +42,19 @@ export default class App {
       this.fftWrapper.initBuffer()
     })
 
+    this.controls.measuredGammaGraph.target = this.controls.gammaInput.value
+
+    this.controls.pairCorrelationGraph.bottomScale.form = 0
+    this.controls.pairCorrelationGraph.bottomScale.to = (
+      physics.CutoffDistance / physics.WignerSeitzRadius
+    )
+    // this.controls.pairCorrelationGraph.bottomScale.to = 5.75
+    this.controls.pairCorrelationGraph.bottomScale.markers = utilities.generateArray(10, x => x)
+
     this.container.appendChild(this.controls.container)
+
+    this.display = new Display(displaySize, displaySize)
+    this.mirror = new Mirror(this.display.canvas, 3, 3)
     this.container.appendChild(this.mirror.canvas)
 
     this.fftMessageChannel = new window.MessageChannel()
@@ -95,6 +104,7 @@ export default class App {
 
   update () {
     if (this.simulationWrapper.gamma !== this.controls.gammaInput.value) {
+      this.controls.measuredGammaGraph.target = this.controls.gammaInput.value
       this.simulationWrapper.gamma = this.controls.gammaInput.value
       this.simulationWrapper.initPairCorrelation()
       this.fftWrapper.initBuffer()
@@ -108,15 +118,63 @@ export default class App {
 
     if (this.simulationWrapper.active) {
       this.controls.measuredGammaGraph.add(this.simulationWrapper.data.measuredGamma)
+
+      this.controls.measuredGammaGraph.leftScale.markers = [
+        0,
+        this.controls.gammaInput.value,
+        this.controls.measuredGammaGraph.target,
+        1.2 * this.controls.measuredGammaGraph.target
+      ]
+
+      const timeStepSize = physics.dt * physics.PlasmaFrequency
+
+      if (
+        this.controls.measuredGammaGraph.data.length <
+        this.controls.measuredGammaGraph.dataLength
+      ) {
+        this.controls.measuredGammaGraph.bottomScale.to = (
+          this.controls.measuredGammaGraph.dataLength * timeStepSize
+        )
+      } else {
+        this.controls.measuredGammaGraph.bottomScale.to += timeStepSize
+      }
+
+      this.controls.measuredGammaGraph.bottomScale.from = (
+        this.controls.measuredGammaGraph.bottomScale.to -
+        this.controls.measuredGammaGraph.dataLength * timeStepSize
+      )
+
+      this.controls.measuredGammaGraph.bottomScale.markers = (
+        [...new Array(4)].map((_, i) => (
+          Math.round(this.controls.measuredGammaGraph.bottomScale.from) + 3 * i
+        ))
+      )
     }
 
     const deltaR = physics.CutoffDistance / this.controls.pairCorrelationGraph.dataLength
     const area = k => (((k * deltaR) ** 2) * Math.PI) - ((((k - 1) * deltaR) ** 2) * Math.PI)
     this.controls.pairCorrelationGraph.data = (
       this.simulationWrapper.data.pairCorrelationData.map(
-        (n, i) => (n / area(i)) / this.simulationWrapper.data.stepCount
+        (n, i) => (n / area(i + 1)) / this.simulationWrapper.data.stepCount
       )
     )
+
+    this.controls.pairCorrelationGraph.data = (
+      this.controls.pairCorrelationGraph.data.map(
+        d => d / 1250000000
+      )
+    )
+
+    this.controls.pairCorrelationGraph.target = (
+      Math.max(...this.controls.pairCorrelationGraph.data)
+    )
+
+    this.controls.pairCorrelationGraph.leftScale.markers = [
+      0,
+      1,
+      this.controls.pairCorrelationGraph.target,
+      1.2 * this.controls.pairCorrelationGraph.target
+    ]
     this.controls.pairCorrelationGraph.draw()
 
     this.display.draw(this.simulationWrapper.data.particles)
