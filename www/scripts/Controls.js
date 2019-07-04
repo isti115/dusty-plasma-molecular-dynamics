@@ -266,8 +266,8 @@ class Heatmap {
 
     // 43 rows
     this.leftScale.from = 0
-    this.leftScale.to = 1
-    this.leftScale.markers = utilities.generateArray(6, x => x / 5) // [0, 0.2, 0.4, 0.6, 0.8, 1]
+    this.leftScale.to = 1.5
+    this.leftScale.markers = utilities.generateArray(7, x => x / 4) // [0, 0.2, 0.4, 0.6, 0.8, 1]
 
     // 31 columns
     this.bottomScale.from = 0
@@ -279,7 +279,8 @@ class Heatmap {
   }
 }
 
-const scaleCanvasSize = 25
+const scaleCanvasSizeLeft = 30
+const scaleCanvasSizeBottom = 23
 const scaleMarginSize = 10
 
 class Scale {
@@ -307,12 +308,12 @@ class Scale {
     this.canvas = window.document.createElement('canvas')
 
     this.canvas.width = this.isVertical
-      ? scaleCanvasSize
+      ? scaleCanvasSizeLeft
       : (this.size + 2 * scaleMarginSize)
 
     this.canvas.height = this.isVertical
       ? (this.size + 2 * scaleMarginSize)
-      : scaleCanvasSize
+      : scaleCanvasSizeBottom
 
     this.container.appendChild(this.canvas)
 
@@ -328,6 +329,7 @@ class Scale {
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height)
     this.context.fillStyle = '#000000'
     this.context.textAlign = this.isVertical ? 'right' : 'center'
+    this.context.font = '12px Century Gothic'
 
     // ;[this.from, ...this.markers, this.to].forEach(value => {
     this.markers.forEach(value => {
@@ -335,8 +337,8 @@ class Scale {
 
       this.context.fillText(
         `${Math.round(value * 100) / 100}${this.unit}`,
-        this.isVertical ? 20 : offset * this.size + scaleMarginSize,
-        this.isVertical ? (this.size - offset * this.size + scaleMarginSize + 2) : 10
+        this.isVertical ? 25 : offset * this.size + scaleMarginSize,
+        this.isVertical ? (this.size - offset * this.size + scaleMarginSize + 4) : 15
       )
     })
 
@@ -357,11 +359,16 @@ export default class Controls {
 
     //
 
+    this.buttonContainer = document.createElement('div')
+    this.buttonContainer.id = 'buttonContainer'
+
     this.resetButton = new Button('Reset', './images/reset.png')
-    this.container.appendChild(this.resetButton.container)
+    this.buttonContainer.appendChild(this.resetButton.container)
 
     this.playPauseButton = new Button('Pause', './images/pause.png')
-    this.container.appendChild(this.playPauseButton.container)
+    this.buttonContainer.appendChild(this.playPauseButton.container)
+
+    this.container.appendChild(this.buttonContainer)
 
     //
 
@@ -384,22 +391,6 @@ export default class Controls {
 
     //
 
-    this.measuredGammaGraph = new Graph(
-      'Measured Gamma',
-      { xName: 'ω<sub>p</sub> * t', xUnit: '', yName: 'Γ', yUnit: '' },
-      300, 150, 300, true
-    )
-    this.container.appendChild(this.measuredGammaGraph.container)
-
-    this.pairCorrelationGraph = new Graph(
-      'Pair Correlation',
-      { xName: 'r / a<sub>ws</sub>', xUnit: '', yName: 'g', yUnit: '' },
-      300, 150, 300, true, [1]
-    )
-    this.container.appendChild(this.pairCorrelationGraph.container)
-
-    //
-
     this.waveDispersionHeatmap = new Heatmap(
       'Wave Dispersion',
       { xName: 'k * a<sub>ws</sub>', xUnit: '', yName: 'ω / ω<sub>p</sub>', yUnit: '' },
@@ -407,5 +398,22 @@ export default class Controls {
       Math.round(physics.PlasmaFrequency / physics.OmegaStepSize) * 5
     )
     this.container.appendChild(this.waveDispersionHeatmap.container)
+
+    //
+
+    this.measuredGammaGraph = new Graph(
+      'Measured Gamma',
+      { xName: 'ω<sub>p</sub> * t', xUnit: '', yName: 'Γ', yUnit: '' },
+      300, 215, 300, true
+    )
+    this.measuredGammaGraph.container.id = 'measuredGammaContainer'
+    this.container.appendChild(this.measuredGammaGraph.container)
+
+    this.pairCorrelationGraph = new Graph(
+      'Pair Correlation',
+      { xName: 'r / a<sub>ws</sub>', xUnit: '', yName: 'g', yUnit: '' },
+      300, 215, 300, true, [1]
+    )
+    this.container.appendChild(this.pairCorrelationGraph.container)
   }
 }

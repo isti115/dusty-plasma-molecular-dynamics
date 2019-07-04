@@ -1,33 +1,55 @@
 .controls {
-  display: inline-block;
+  /* display: inline-block; */
+
+  display: inline-flex;
+  flex-wrap: wrap;
+  height: 650px;
+  flex-direction: column;
+  width: 780px;
+
+  /* */
 
   vertical-align: middle;
 
-  padding-left: 7px;
+  /* padding-left: 7px; */
+
+  padding: 5px 5px 10px 20px;
   border-radius: 10px;
 
   background-color: rgba(76, 175, 80, 0.1);
 
   --gray-color: #d3d3d3;
   --accent-color: #4CAF50;
-  --scale-size: 50px;
-  --scale-margin-size: 10px;
-}
 
-.controls .title {
-  text-decoration: underline;
+  --scale-size-left: 30px;
+  --scale-size-bottom: 23px;
+  --scale-margin-size: 10px;
 }
 
 /* .controls div {
   display: inline-block;
 } */
 
+.controls #buttonContainer {
+  margin-top: 30px;
+  margin-left: 30px;
+}
+
+.controls #measuredGammaContainer {
+  margin-top: 5px;
+}
+
+.controls .title {
+  margin-bottom: 0px;
+  text-decoration: underline;
+}
+
 /* Button */
 
 .button {
   display: inline-block;
 
-  width: 140px;
+  width: 110px;
   height: 25px;
 
   margin: 10px 10px 10px 0px;
@@ -66,7 +88,7 @@
 /* Toggle */
 
 .toggle {
-  margin: 12px 0px;
+  margin: 12px 95px;
 }
 
 .toggle label {
@@ -157,7 +179,7 @@
 /* Graph */
 
 .graph {
-  margin-top: 20px;
+  /* margin-top: 20px; */
 }
 
 .graph canvas.graphCanvas {
@@ -167,7 +189,7 @@
 /* Heatmap */
 
 .heatmap {
-  margin-top: 20px;
+  margin-top: 30px;
 }
 
 .heatmap canvas.heatmapCanvas {
@@ -184,16 +206,20 @@
 
 .scale p {
   margin: 0px;
-  font-size: 20px;
+  font-size: 17px;
 }
 
 .scale.left {
-  width: var(--scale-size);
+  position: relative;
+  top: var(--scale-margin-size);
+
+  width: calc(2 * var(--scale-size-left));
 }
 
 .scale.left p {
   position: absolute;
     top: 50%;
+    /* left: -25%; */
 
   transform-origin: top left;
   transform: rotate(-90deg) translateX(-50%);
@@ -201,15 +227,15 @@
 
 .scale.left canvas {
   position: relative;
-    top: var(--scale-margin-size);
-    left: 50%;
+    /* top: var(--scale-margin-size); */
+    left: var(--scale-size-left);
 }
 
 .scale.bottom {
-  height: var(--scale-size);
+  height: calc(2 * var(--scale-size-bottom));
 
   position: relative;
-    left: calc(var(--scale-size) - var(--scale-margin-size) + 1px);
+    left: calc(2 * var(--scale-size-left) - var(--scale-margin-size) + 1px);
 
   margin-top: -5px;
 }

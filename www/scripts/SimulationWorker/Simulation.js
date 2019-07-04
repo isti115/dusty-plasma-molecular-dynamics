@@ -23,7 +23,11 @@ class Simulation {
     this.processParticleWithCellFromIndex = (
       this.processParticleWithCellFromIndex.bind(this)
     )
+
     this.calculateForces = this.calculateForces.bind(this)
+    this.removeDrift = this.removeDrift.bind(this)
+    this.strongThermostate = this.strongThermostate.bind(this)
+    this.andersenThermostate = this.andersenThermostate.bind(this)
     this.updateSpeed = this.updateSpeed.bind(this)
     this.updatePosition = this.updatePosition.bind(this)
     this.randomMove = this.randomMove.bind(this)
@@ -176,7 +180,7 @@ class Simulation {
     }
   }
 
-  updateSpeed (dt) {
+  removeDrift () {
     const velocitySum = { x: 0, y: 0 }
 
     this.particles.forEach(p => {
@@ -193,19 +197,36 @@ class Simulation {
       p.velocity.x -= velocityAverage.x
       p.velocity.y -= velocityAverage.y
     })
+  }
 
-    this.kineticEnergy = physics.ParticleMass * this.particles.map(
-      p => (utilities.norm(p.velocity.x, p.velocity.y) ** 2)
-    ).reduce((a, b) => a + b, 0) / 2
-
-    const desiredTemperature = (
-      physics.ParticleChargeSquaredTimesCoulombConstant /
-      (
-        physics.WignerSeitzRadius *
-        physics.BoltzmannConstant *
-        this.gamma
-      )
+  strongThermostate (measuredTemperature, desiredTemperature) {
+    const dampening = (
+      measuredTemperature !== 0
+        ? Math.sqrt(desiredTemperature / measuredTemperature)
+        : 1
     )
+
+    this.particles.forEach(p => {
+      p.velocity = {
+        x: (dampening * p.velocity.x),
+        y: (dampening * p.velocity.y)
+      }
+    })
+  }
+
+  andersenThermostate (measuredTemperature, desiredTemperature) {
+    const chosenParticle = this.particles[Math.floor(Math.random() * physics.ParticleCount)]
+
+    chosenParticle.velocity = {
+      x: physics.maxwellBoltzmannSample(desiredTemperature),
+      y: physics.maxwellBoltzmannSample(desiredTemperature)
+    }
+  }
+
+  updateSpeed (dt) {
+    this.kineticEnergy = physics.ParticleMass * this.particles.map(
+      p => utilities.normSquared(p.velocity.x, p.velocity.y)
+    ).reduce((a, b) => a + b, 0) / 2
 
     const measuredTemperature = (
       this.kineticEnergy / (physics.BoltzmannConstant * this.particleCount)
@@ -220,11 +241,20 @@ class Simulation {
       )
     )
 
-    const dampening = (
-      measuredTemperature !== 0
-        ? Math.sqrt(desiredTemperature / measuredTemperature)
-        : 1
+    const desiredTemperature = (
+      physics.ParticleChargeSquaredTimesCoulombConstant /
+      (
+        physics.WignerSeitzRadius *
+        physics.BoltzmannConstant *
+        this.gamma
+      )
     )
+
+    if (this.stepCount < physics.strongThermostateStepCount) {
+      this.strongThermostate(measuredTemperature, desiredTemperature)
+    } else {
+      this.andersenThermostate(measuredTemperature, desiredTemperature)
+    }
 
     // const dampening = (
     //   measuredTemperature > desiredTemperature
@@ -237,11 +267,11 @@ class Simulation {
     this.particles.forEach(p => {
       p.velocity = {
         x: (
-          dampening * p.velocity.x +
+          p.velocity.x +
           dt * (p.previousForce.x + p.force.x) / (2 * physics.ParticleMass)
         ),
         y: (
-          dampening * p.velocity.y +
+          p.velocity.y +
           dt * (p.previousForce.y + p.force.y) / (2 * physics.ParticleMass)
         )
       }

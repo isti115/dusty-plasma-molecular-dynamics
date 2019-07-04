@@ -18,3 +18,10 @@ body {
 
   border-bottom-width: 0px;
 }
+
+#app {
+  display: flex;
+  align-items: center;
+
+  overflow: hidden;
+}

@@ -17,6 +17,10 @@ const GridSize = 4
 const CutoffDistance = BoxSize / GridSize
 const ParticleCount = 500
 
+const strongThermostateStepCount = 1000
+
+// Calculated values
+
 const SurfaceDensity = ParticleCount / (BoxSize ** 2)
 const WignerSeitzRadius = 1 / Math.sqrt(SurfaceDensity * Math.PI)
 
@@ -41,6 +45,34 @@ const ParticleChargeSquaredTimesCoulombConstant = (
 
 //
 
+// Code slightly modified from: https://stackoverflow.com/a/32635375/1831096
+const _a = ((8 * (Math.PI - 3)) / ((3 * Math.PI) * (4 - Math.PI)))
+const inverseErrorFunction = _x => {
+  const signX = ((_x < 0) ? -1 : 1)
+
+  const oneMinusXsquared = 1 - (_x * _x)
+  const LNof1minusXsqrd = Math.log(oneMinusXsquared)
+  const piTimesA = Math.PI * _a
+
+  const firstTerm = Math.pow(((2 / piTimesA) + (LNof1minusXsqrd / 2)), 2)
+  const secondTerm = (LNof1minusXsqrd / _a)
+  const thirdTerm = ((2 / piTimesA) + (LNof1minusXsqrd / 2))
+
+  const primaryComp = Math.sqrt(Math.sqrt(firstTerm - secondTerm) - thirdTerm)
+
+  const scaledR = signX * primaryComp
+  return scaledR
+}
+
+//
+
+const maxwellBoltzmannSample = t => (
+  inverseErrorFunction(2 * Math.random() - 1) /
+  Math.sqrt(ParticleMass / (2 * BoltzmannConstant * t))
+)
+
+//
+
 this.physics = {
   BoltzmannConstant,
   ElectronCharge,
@@ -55,6 +87,9 @@ this.physics = {
   GridSize,
   CutoffDistance,
   ParticleCount,
+
+  strongThermostateStepCount,
+
   SurfaceDensity,
   WignerSeitzRadius,
   PlasmaFrequency,
@@ -67,5 +102,10 @@ this.physics = {
 
   //
 
-  ParticleChargeSquaredTimesCoulombConstant
+  ParticleChargeSquaredTimesCoulombConstant,
+
+  //
+
+  inverseErrorFunction,
+  maxwellBoltzmannSample
 }

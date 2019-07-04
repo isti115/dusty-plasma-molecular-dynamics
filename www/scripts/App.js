@@ -119,11 +119,24 @@ export default class App {
     if (this.simulationWrapper.active) {
       this.controls.measuredGammaGraph.add(this.simulationWrapper.data.measuredGamma)
 
+      const gammaDifference = Math.abs(
+        this.controls.gammaInput.value - this.simulationWrapper.data.measuredGamma
+      )
+
       this.controls.measuredGammaGraph.leftScale.markers = [
         0,
-        this.controls.gammaInput.value,
+        // this.controls.gammaInput.value,
         this.controls.measuredGammaGraph.target,
-        1.2 * this.controls.measuredGammaGraph.target
+        1.2 * this.controls.measuredGammaGraph.target,
+        ...(
+          (gammaDifference / this.controls.gammaInput.value > 0.06)
+            ? [utilities.toNDigits(3, this.simulationWrapper.data.measuredGamma)]
+            : []
+        )
+      ]
+
+      this.controls.measuredGammaGraph.markers = [
+        this.simulationWrapper.data.measuredGamma
       ]
 
       const timeStepSize = physics.dt * physics.PlasmaFrequency

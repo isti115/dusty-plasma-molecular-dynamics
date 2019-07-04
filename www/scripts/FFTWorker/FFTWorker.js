@@ -22,7 +22,7 @@ class FFTWorker {
       (3 * physics.BoxSize) / (2 * Math.PI * physics.WignerSeitzRadius)
     ) * 2
     this.deltaOmega = (2 * Math.PI) / (this.bufferLength * physics.dt)
-    this.omegaCount = Math.round(physics.PlasmaFrequency / this.deltaOmega)
+    this.omegaCount = Math.round(1.5 * physics.PlasmaFrequency / this.deltaOmega)
     // console.log('omegaCount', this.omegaCount)
     // console.log('kCount', this.kCount)
 

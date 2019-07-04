@@ -17,7 +17,7 @@ class Heatmap {
     // this.innerCanvas = new OffscreenCanvas(13, 43)
     // this.innerContext = this.innerCanvas.getContext('2d')
 
-    this.scale = { x: 9.4, y: 5 }
+    this.scale = { x: 9.4, y: 5 / 1.5 }
   }
 
   drawProgress (progress) {
@@ -31,13 +31,16 @@ class Heatmap {
   }
 
   drawPixel (x, y, value) {
-    const intensity = 255 * value
-
-    // this.context.fillStyle = `hsl(${hue}, 100%, 50%)`
-    // this.context.fillStyle = `hsl(${60 + 300 * value}, 100%, 50%)`
-    this.context.fillStyle = `rgb(${intensity}, ${intensity}, ${intensity})`
     // this.innerContext.fillRect(x, 43 - y, 1, 1)
     // this.context.fillRect(x, 43 - y, 1, 1)
+
+    // const intensity = 255 * value
+    // this.context.fillStyle = `rgb(${intensity}, ${intensity}, ${intensity})`
+
+    // this.context.fillStyle = `hsl(${hue}, 100%, 50%)`
+
+    this.context.fillStyle = `hsl(${250 - 250 * value}, 100%, ${value === 0 ? 100 : 50}%)`
+
     this.context.fillRect(
       this.scale.x * x,
       this.canvas.height - this.scale.y * y,
@@ -69,9 +72,10 @@ class Heatmap {
     })
 
     // this.context.drawImage(this.innerCanvas, 0, 0, this.scale.x, this.scale.y)
-    this.context.font = '30px Century Gothic'
-    this.context.fillStyle = '#FFFFFF'
-    this.context.fillText(n, 10, 30)
+    this.context.font = '15px Century Gothic'
+    // this.context.fillStyle = '#FFFFFF'
+    this.context.fillStyle = '#000000'
+    this.context.fillText(n, 10, 20)
   }
 }
 
