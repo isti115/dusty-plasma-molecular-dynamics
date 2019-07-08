@@ -42,6 +42,20 @@ export default class App {
       this.fftWrapper.initBuffer()
     })
 
+    // For the Electron packaged version:
+    try {
+      const electron = require('electron')
+      const { ipcRenderer } = electron
+
+      this.controls.mirrorToggle.input.addEventListener('change', () => {
+        ipcRenderer.send('mirrorToggle', this.controls.mirrorToggle.value)
+      })
+
+      console.info('Running in electron mode.')
+    } catch (e) {
+      console.info('Running in browser mode.')
+    }
+
     this.controls.measuredGammaGraph.target = this.controls.gammaInput.value
 
     this.controls.pairCorrelationGraph.bottomScale.form = 0

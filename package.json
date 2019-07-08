@@ -1,13 +1,18 @@
 {
   "name": "dusty-plasma-molecular-dynamics-ajp-2019",
   "description": "A visualized simulation of moledular dynamics in dusty plasmas as additional material for an American Journal of Physics article.",
+  "version": "1.0.0",
   "scripts": {
-    "start": "http-server -c-1"
+    "start": "http-server -c-1",
+    "electron:start": "electron .",
+    "electron:build": "electron-builder"
   },
   "dependencies": {
     "http-server": "^0.11.1"
   },
   "devDependencies": {
+    "electron": "^5.0.6",
+    "electron-builder": "^20.44.4",
     "eslint": "^5.12.1",
     "eslint-config-standard": "^12.0.0",
     "eslint-plugin-import": "^2.15.0",
