@@ -10,6 +10,7 @@ class FFTWorker {
     this.initBuffer = this.initBuffer.bind(this)
     this.handleMessage = this.handleMessage.bind(this)
     // this.handleData = this.handleData.bind(this)
+    this.processCoordinates = this.processCoordinates.bind(this)
     this.process = this.process.bind(this)
 
     // Init
@@ -27,10 +28,15 @@ class FFTWorker {
     // console.log('kCount', this.kCount)
 
     this.initBuffer()
+    this.prevTime = new Date()
   }
 
   initBuffer () {
-    this.bufferData = []
+    this.bufferData = {
+      x: [],
+      y: []
+    }
+
     this.accumulatedData = utilities.generateArray(
       this.omegaCount,
       () => utilities.generateArray(this.kCount, () => 0)
@@ -41,6 +47,31 @@ class FFTWorker {
       this.heatmap.clearProgress()
     }
   }
+
+  processCoordinates (data) {
+    return utilities.generateArray(
+      this.kCount,
+      m => utilities.generateArray(
+        data.positions.length,
+        i => (Complex.mul(
+          new Complex(data.velocities[i], 0),
+          Complex.exp(new Complex(0, m * (2 * Math.PI / physics.BoxSize) * data.positions[i]))
+        ))
+      ).reduce((a, b) => Complex.add(a, b), new Complex(0, 0))
+    )
+  }
+
+  // processCoordinates (data) {
+  //   return utilities.generateArray(
+  //     this.kCount,
+  //     m => data.map(
+  //       p => (Complex.mul(
+  //         new Complex(p.vel, 0),
+  //         Complex.exp(new Complex(0, m * (2 * Math.PI / physics.BoxSize) * p.pos))
+  //       ))
+  //     ).reduce((a, b) => Complex.add(a, b), new Complex(0, 0))
+  //   )
+  // }
 
   handleMessage (msg) {
     const messageHandlers = {
@@ -74,18 +105,18 @@ class FFTWorker {
       },
 
       'coordinates': data => {
-        const sd = utilities.generateArray(
-          this.kCount,
-          m => data.x.reduce(
-            (sum, p) => (Complex.add(
-              sum, Complex.mul(
-                new Complex(p.vx, 0),
-                Complex.exp(new Complex(0, m * (2 * Math.PI / physics.BoxSize) * p.x)) // use k + 1 to skip 0
-              )
-            )),
-            new Complex(0, 0)
-          )
-        )
+        // const sd = utilities.generateArray(
+        //   this.kCount,
+        //   m => data.x.reduce(
+        //     (sum, p) => (Complex.add(
+        //       sum, Complex.mul(
+        //         new Complex(p.vx, 0),
+        //         Complex.exp(new Complex(0, m * (2 * Math.PI / physics.BoxSize) * p.x)) // use k + 1 to skip 0
+        //       )
+        //     )),
+        //     new Complex(0, 0)
+        //   )
+        // )
 
         // const sdY = utilities.generateArray(
         //   this.kCount,
@@ -123,12 +154,53 @@ class FFTWorker {
         //   summedList.push(summedData)
         // }
 
-        this.bufferData.push(sd)
+        // this.bufferData.push(sd)
 
-        if (this.bufferData.length === this.bufferLength) {
-          this.process()
+        const preparedData = {
+          x: {
+            positions: new Float64Array(data.x.positions),
+            velocities: new Float64Array(data.x.velocities)
+          },
+          y: {
+            positions: new Float64Array(data.y.positions),
+            velocities: new Float64Array(data.y.velocities)
+          }
+        }
+
+        this.bufferData.x.push(this.processCoordinates(preparedData.x))
+        this.bufferData.y.push(this.processCoordinates(preparedData.y))
+
+        // this.bufferData.push(this.processCoordinates(data.x))
+        // this.bufferData.push(this.processCoordinates(data.y))
+
+        if (this.bufferData.x.length === this.bufferLength) {
+          console.log((new Date() - this.prevTime) / 1000)
+          this.prevTime = new Date()
+
+          this.process(this.bufferData.x)
+          this.process(this.bufferData.y)
+
+          const averagedData = utilities.generateArray(
+            this.accumulatedData.length,
+            i => utilities.generateArray(
+              this.accumulatedData[i].length,
+              j => this.accumulatedData[i][j] / this.accumulatedDataCount
+            )
+          )
+
+          this.heatmap.draw(averagedData, this.accumulatedDataCount)
+
+          this.sendMessage({
+            type: 'data',
+            data: averagedData
+          })
+
+          this.bufferData = {
+            x: [],
+            y: []
+          }
         } else {
-          this.heatmap.drawProgress(this.bufferData.length / this.bufferLength)
+          this.heatmap.drawProgress(this.bufferData.x.length / this.bufferLength)
         }
       }
     }
@@ -144,14 +216,14 @@ class FFTWorker {
 
   // }
 
-  process () {
+  process (data) {
     // const t0 = performance.now()
 
     const flippedData = utilities.generateArray(
       this.kCount,
       i => utilities.generateArray(
         this.bufferLength,
-        j => this.bufferData[j][i]
+        j => data[j][i]
       )
     )
 
@@ -169,23 +241,6 @@ class FFTWorker {
     }
 
     this.accumulatedDataCount++
-
-    const averagedData = utilities.generateArray(
-      this.accumulatedData.length,
-      i => utilities.generateArray(
-        this.accumulatedData[i].length,
-        j => this.accumulatedData[i][j] / this.accumulatedDataCount
-      )
-    )
-
-    this.heatmap.draw(averagedData, this.accumulatedDataCount)
-
-    this.sendMessage({
-      type: 'data',
-      data: averagedData
-    })
-
-    this.bufferData = []
   }
 }
 
