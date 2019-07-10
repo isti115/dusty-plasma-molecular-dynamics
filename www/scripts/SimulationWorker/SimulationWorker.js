@@ -87,77 +87,77 @@ class SimulationWorker {
     for (let updateIndex = 0; updateIndex < updateMultiplier; updateIndex++) {
       this.simulation.update()
 
-      const xPositions = new ArrayBuffer(this.simulation.particleCount * 8)
-      const xVelocities = new ArrayBuffer(this.simulation.particleCount * 8)
-      const yPositions = new ArrayBuffer(this.simulation.particleCount * 8)
-      const yVelocities = new ArrayBuffer(this.simulation.particleCount * 8)
+      if (this.simulation.stepCount > physics.strongThermostateStepCount) {
+        const xPositions = new ArrayBuffer(this.simulation.particleCount * 8)
+        const xVelocities = new ArrayBuffer(this.simulation.particleCount * 8)
+        const yPositions = new ArrayBuffer(this.simulation.particleCount * 8)
+        const yVelocities = new ArrayBuffer(this.simulation.particleCount * 8)
 
-      const xPositionsView = new Float64Array(xPositions)
-      const xVelocitiesView = new Float64Array(xVelocities)
-      const yPositionsView = new Float64Array(yPositions)
-      const yVelocitiesView = new Float64Array(yVelocities)
+        const xPositionsView = new Float64Array(xPositions)
+        const xVelocitiesView = new Float64Array(xVelocities)
+        const yPositionsView = new Float64Array(yPositions)
+        const yVelocitiesView = new Float64Array(yVelocities)
 
-      this.simulation.particles.forEach((p, i) => {
-        xPositionsView[i] = p.position.x
-        xVelocitiesView[i] = p.velocity.x
-        yPositionsView[i] = p.position.y
-        yVelocitiesView[i] = p.velocity.y
-      })
+        this.simulation.particles.forEach((p, i) => {
+          xPositionsView[i] = p.position.x
+          xVelocitiesView[i] = p.velocity.x
+          yPositionsView[i] = p.position.y
+          yVelocitiesView[i] = p.velocity.y
+        })
 
-      const msg = {
-        type: 'coordinates',
-        data: {
-          y: {
-            positions: yPositions,
-            velocities: yVelocities
-          },
-          x: {
-            positions: xPositions,
-            velocities: xVelocities
+        const msg = {
+          type: 'coordinates',
+          data: {
+            y: {
+              positions: yPositions,
+              velocities: yVelocities
+            },
+            x: {
+              positions: xPositions,
+              velocities: xVelocities
+            }
           }
         }
+
+        this.fftPort1.postMessage(
+          msg,
+          [
+            msg.data.x.positions,
+            msg.data.x.velocities,
+            msg.data.y.positions,
+            msg.data.y.velocities
+          ]
+        )
+
+        // this.fftPort1.postMessage({
+        //   type: 'coordinates',
+        //   data: {}
+        // })
+
+        // const coordinates = {
+        //   y: (
+        //     this.simulation.particles.map(
+        //       p => ({
+        //         pos: p.position.y,
+        //         vel: p.velocity.y
+        //       })
+        //     )
+        //   ),
+        //   x: (
+        //     this.simulation.particles.map(
+        //       p => ({
+        //         pos: p.position.x,
+        //         vel: p.velocity.x
+        //       })
+        //     )
+        //   )
+        // }
+
+        // this.fftPort1.postMessage({
+        //   type: 'coordinates',
+        //   data: coordinates
+        // })
       }
-
-      this.fftPort1.postMessage(
-        msg,
-        [
-          msg.data.x.positions,
-          msg.data.x.velocities,
-          msg.data.y.positions,
-          msg.data.y.velocities
-        ]
-      )
-
-      // this.fftPort1.postMessage({
-      //   type: 'coordinates',
-      //   data: {}
-      // })
-
-      // const coordinates = {
-      //   y: (
-      //     this.simulation.particles.map(
-      //       p => ({
-      //         pos: p.position.y,
-      //         vel: p.velocity.y
-      //       })
-      //     )
-      //   ),
-      //   x: (
-      //     this.simulation.particles.map(
-      //       p => ({
-      //         pos: p.position.x,
-      //         vel: p.velocity.x
-      //       })
-      //     )
-      //   )
-      // }
-
-      // this.fftPort1.postMessage({
-      //   type: 'coordinates',
-      //   data: coordinates
-      // })
-
-      // console.log(JSON.stringify(coordinates).length)
     }
 
     this.sendData()

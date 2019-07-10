@@ -336,7 +336,7 @@ class Scale {
       const offset = (value - this.from) / (this.to - this.from)
 
       this.context.fillText(
-        `${Math.round(value * 100) / 100}${this.unit}`,
+        `${utilities.toNDigits(3, value)}${this.unit}`,
         this.isVertical ? 25 : offset * this.size + scaleMarginSize,
         this.isVertical ? (this.size - offset * this.size + scaleMarginSize + 4) : 15
       )

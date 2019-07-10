@@ -117,6 +117,11 @@ export default class App {
   }
 
   update () {
+    if (!this.simulationWrapper.active) {
+      window.requestAnimationFrame(this.update)
+      return
+    }
+
     if (this.simulationWrapper.gamma !== this.controls.gammaInput.value) {
       this.controls.measuredGammaGraph.target = this.controls.gammaInput.value
       this.simulationWrapper.gamma = this.controls.gammaInput.value
@@ -144,7 +149,7 @@ export default class App {
         1.2 * this.controls.measuredGammaGraph.target,
         ...(
           (gammaDifference / this.controls.gammaInput.value > 0.06)
-            ? [utilities.toNDigits(3, this.simulationWrapper.data.measuredGamma)]
+            ? [this.simulationWrapper.data.measuredGamma]
             : []
         )
       ]

@@ -118,7 +118,15 @@ class Simulation {
       const distance = utilities.norm(offset.x, offset.y)
 
       if (distance < physics.CutoffDistance) {
-        this.pairCorrelationData[Math.floor((distance / physics.CutoffDistance) * this.pairCorrelationResolution)]++
+        if (this.stepCount > physics.strongThermostateStepCount) {
+          const distanceIndex = (
+            Math.floor(
+              (distance / physics.CutoffDistance) *
+              this.pairCorrelationResolution
+            )
+          )
+          this.pairCorrelationData[distanceIndex]++
+        }
 
         const force = (
           physics.ParticleChargeSquaredTimesCoulombConstant

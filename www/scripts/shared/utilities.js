@@ -13,7 +13,7 @@ const isPowerOfTwo = x => Math.log2(x) % 1 === 0
 
 const toNDigits = (n, x) => {
   const offset = 10 ** (n - 1 - Math.floor(Math.log10(x)))
-  return Math.round(x * offset) / offset
+  return Math.round(x * offset) / offset || 0
 }
 
 // Worker export:

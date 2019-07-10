@@ -160,7 +160,7 @@
 
 .slider input[type="range"] {
   -webkit-appearance: none;
-  width: 350px;
+  width: 355px;
   height: 15px;
   border-radius: 5px;
   background: var(--gray-color);
