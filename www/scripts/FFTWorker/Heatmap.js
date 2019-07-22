@@ -20,6 +20,11 @@ class Heatmap {
     this.scale = { x: 9.4, y: 5 / 1.5 }
   }
 
+  clear () {
+    this.context.fillStyle = '#FFFFFF'
+    this.context.fillRect(0, 0, this.canvas.width, this.canvas.height)
+  }
+
   drawProgress (progress) {
     this.context.fillStyle = '#4CAF50'
     this.context.fillRect(0, 0, progress * this.canvas.width, 3)

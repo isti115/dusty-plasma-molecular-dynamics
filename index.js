@@ -18,6 +18,9 @@ function createWindow () {
   win.setMenu(null)
   win.setResizable(false)
 
+  win.setMinimumSize(1550, 820)
+  win.setSize(1550, 820, true)
+
   ipcMain.addListener('mirrorToggle', (e, mirrorState) => {
     if (mirrorState) {
       win.setMinimumSize(1550, 820)
@@ -90,17 +93,24 @@ app.on('activate', () => {
 // })
 
 const { protocol } = require('electron')
-const nfs = require('fs')
+const fs = require('fs')
 const npjoin = require('path').join
 const es6Path = npjoin(__dirname, 'www')
 
 protocol.registerSchemesAsPrivileged([{ scheme: 'es6', privileges: { standard: true, secure: true } }])
 
 app.on('ready', async () => {
-  protocol.registerBufferProtocol('es6', (req, cb) => {
-    nfs.readFile(
+  protocol.registerBufferProtocol('es6', (req, res) => {
+    fs.readFile(
       npjoin(es6Path, req.url.replace('es6://', '')),
-      (e, b) => { cb({ mimeType: 'text/javascript', data: b }) }
+      (error, data) => {
+        if (error) {
+          console.log(error)
+          res({ mimeType: 'text/plain', data: JSON.stringify(error) })
+        } else {
+          res({ mimeType: 'text/javascript', data })
+        }
+      }
     )
   })
   // await createWindow()

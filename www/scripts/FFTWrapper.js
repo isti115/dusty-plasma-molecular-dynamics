@@ -35,6 +35,16 @@ export default class FFTWrapper {
     })
   }
 
+  reset () {
+    this.worker.postMessage({
+      type: 'call',
+      data: {
+        name: 'reset',
+        arguments: []
+      }
+    })
+  }
+
   handleMessage (msg) {
     const messageHandlers = {
       'data': data => {

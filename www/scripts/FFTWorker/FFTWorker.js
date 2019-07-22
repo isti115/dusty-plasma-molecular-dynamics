@@ -42,9 +42,14 @@ class FFTWorker {
       () => utilities.generateArray(this.kCount, () => 0)
     )
     this.accumulatedDataCount = 0
+  }
+
+  reset () {
+    this.initBuffer()
 
     if (this.heatmap) {
-      this.heatmap.clearProgress()
+      // this.heatmap.clearProgress()
+      this.heatmap.clear()
     }
   }
 
@@ -97,6 +102,10 @@ class FFTWorker {
 
       'call': data => {
         this[data.name](...data.arguments)
+      },
+
+      'reset': data => {
+        this.accumulatedDataCount = 0
       },
 
       'set': data => {
@@ -240,7 +249,7 @@ class FFTWorker {
       }
     }
 
-    this.accumulatedDataCount++
+    this.accumulatedDataCount += 0.5
   }
 }
 

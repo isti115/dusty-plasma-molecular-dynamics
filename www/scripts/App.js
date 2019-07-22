@@ -39,7 +39,7 @@ export default class App {
 
     this.controls.resetButton.container.addEventListener('click', () => {
       this.simulationWrapper.reset()
-      this.fftWrapper.initBuffer()
+      this.fftWrapper.reset()
     })
 
     // For the Electron packaged version:
@@ -126,13 +126,13 @@ export default class App {
       this.controls.measuredGammaGraph.target = this.controls.gammaInput.value
       this.simulationWrapper.gamma = this.controls.gammaInput.value
       this.simulationWrapper.initDataCollection()
-      this.fftWrapper.initBuffer()
+      this.fftWrapper.reset()
     }
 
     if (this.simulationWrapper.kappa !== this.controls.kappaInput.value) {
       this.simulationWrapper.kappa = this.controls.kappaInput.value
       this.simulationWrapper.initDataCollection()
-      this.fftWrapper.initBuffer()
+      this.fftWrapper.reset()
     }
 
     if (this.simulationWrapper.active) {
@@ -187,7 +187,8 @@ export default class App {
     const area = k => (((k * deltaR) ** 2) * Math.PI) - ((((k - 1) * deltaR) ** 2) * Math.PI)
     this.controls.pairCorrelationGraph.data = (
       this.simulationWrapper.data.pairCorrelationData.map(
-        (n, i) => (n / area(i + 1)) / this.simulationWrapper.data.stepCount
+        (n, i) => (n / area(i + 1)) /
+        (this.simulationWrapper.data.stepCount - physics.strongThermostateStepCount)
       )
     )
 
