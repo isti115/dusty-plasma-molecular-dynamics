@@ -1,6 +1,7 @@
-export default class FFTWrapper {
-  constructor (fftPort2) {
-    this.fftPort2 = fftPort2
+export default class WaveDispersionWrapper {
+  constructor (bufferOutputMessageChannel, offscreenCanvas) {
+    this.bufferOutputMessageChannel = bufferOutputMessageChannel
+    this.offscreenCanvas = offscreenCanvas
 
     this.init = this.init.bind(this)
     this.handleMessage = this.handleMessage.bind(this)
@@ -9,16 +10,30 @@ export default class FFTWrapper {
   }
 
   init () {
-    this.worker = new window.Worker('./scripts/FFTWorker/index.js')
+    this.worker = new window.Worker('./scripts/WaveDispersionWorker/index.js')
     this.worker.addEventListener('message', msg => this.handleMessage(msg.data))
 
     this.worker.postMessage(
       {
-        type: 'fftPort2',
-        data: this.fftPort2
+        type: 'bufferOutputMessageChannels',
+        data: {
+          x: this.bufferOutputMessageChannel.x.port2,
+          y: this.bufferOutputMessageChannel.y.port2
+        }
       },
       [
-        this.fftPort2
+        this.bufferOutputMessageChannel.x.port2,
+        this.bufferOutputMessageChannel.y.port2
+      ]
+    )
+
+    this.worker.postMessage(
+      {
+        type: 'offscreenCanvas',
+        data: this.offscreenCanvas
+      },
+      [
+        this.offscreenCanvas
       ]
     )
 
@@ -46,11 +61,7 @@ export default class FFTWrapper {
   }
 
   handleMessage (msg) {
-    const messageHandlers = {
-      'data': data => {
-        this.data = data
-      }
-    }
+    const messageHandlers = {}
 
     if (msg.type in messageHandlers) {
       messageHandlers[msg.type](msg.data)

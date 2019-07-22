@@ -330,7 +330,12 @@ class Simulation {
   update () {
     this.makeGrid()
     this.updatePosition(physics.dt)
+
+    // const t0 = performance.now()
     this.calculateForces()
+    // const t1 = performance.now()
+    // console.log(`Update (cf) time: ${t1 - t0}ms`)
+
     this.updateSpeed(physics.dt)
     this.stepCount++
   }

@@ -1,18 +1,16 @@
-/* global FFTWorker */
+/* global BufferWorker */
 this.importScripts(
   '../shared/utilities.js',
   '../shared/physics.js',
-  'Complex.js',
-  'fft.js',
-  'Heatmap.js',
-  'FFTWorker.js'
+  '../shared/Complex.js',
+  'BufferWorker.js'
 )
 
 // Note: this === self at the top level.
 const sendMessage = data => this.postMessage(data)
 
-const fftWorker = new FFTWorker(sendMessage)
+const bufferWorker = new BufferWorker(sendMessage)
 
 this.addEventListener('message', msg => {
-  fftWorker.handleMessage(msg.data)
+  bufferWorker.handleMessage(msg.data)
 })

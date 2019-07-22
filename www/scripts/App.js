@@ -2,7 +2,8 @@ import Controls from './Controls.js'
 import Display from './Display.js'
 import Mirror from './Mirror.js'
 import SimulationWrapper from './SimulationWrapper.js'
-import FFTWrapper from './FFTWrapper.js'
+import BufferWrapper from './BufferWrapper.js'
+import WaveDispersionWrapper from './WaveDispersionWrapper.js'
 
 import physics from './physics.js'
 import utilities from './utilities.js'
@@ -26,6 +27,8 @@ export default class App {
   init () {
     this.controls = new Controls()
 
+    // #region Play/Pause and Reset buttons
+
     this.controls.playPauseButton.container.addEventListener('click', () => {
       this.simulationWrapper.playPause()
 
@@ -39,8 +42,12 @@ export default class App {
 
     this.controls.resetButton.container.addEventListener('click', () => {
       this.simulationWrapper.reset()
-      this.fftWrapper.reset()
+      this.waveDispersionWrapper.reset()
     })
+
+    // #endregion
+
+    // #region Periodic Display toggle
 
     // For the Electron packaged version:
     try {
@@ -56,6 +63,10 @@ export default class App {
       console.info('Running in browser mode.')
     }
 
+    // #endregion
+
+    // #region Measured Gamma and Pair Correlation graphs
+
     this.controls.measuredGammaGraph.target = this.controls.gammaInput.value
 
     this.controls.pairCorrelationGraph.bottomScale.form = 0
@@ -65,13 +76,22 @@ export default class App {
     // this.controls.pairCorrelationGraph.bottomScale.to = 5.75
     this.controls.pairCorrelationGraph.bottomScale.markers = utilities.generateArray(11)
 
+    this.controls.pairCorrelationGraph.data = utilities.generateArray(
+      this.controls.pairCorrelationGraph.dataLength, () => 0
+    )
+
+    // #endregion
+
     this.container.appendChild(this.controls.container)
 
     this.display = new Display(displaySize, displaySize)
     this.mirror = new Mirror(this.display.canvas, 3, 3)
     this.container.appendChild(this.mirror.canvas)
 
-    this.fftMessageChannel = new window.MessageChannel()
+    this.bufferInputMessageChannel = {
+      x: new window.MessageChannel(),
+      y: new window.MessageChannel()
+    }
 
     this.simulationWrapper = new SimulationWrapper(
       {
@@ -82,27 +102,25 @@ export default class App {
         kappa: this.controls.kappaInput.value,
         pairCorrelationResolution: this.controls.pairCorrelationGraph.dataLength
       },
-      this.fftMessageChannel.port1
+      this.bufferInputMessageChannel
     )
 
-    this.fftWrapper = new FFTWrapper(
-      this.fftMessageChannel.port2
+    this.bufferOutputMessageChannel = {
+      x: new window.MessageChannel(),
+      y: new window.MessageChannel()
+    }
+
+    this.bufferWrapper = new BufferWrapper(
+      this.bufferInputMessageChannel,
+      this.bufferOutputMessageChannel
     )
 
-    this.controls.pairCorrelationGraph.data = utilities.generateArray(
-      this.controls.pairCorrelationGraph.dataLength, () => 0
+    const offscreenCanvas = (
+      this.controls.waveDispersionHeatmap.canvas.transferControlToOffscreen()
     )
-
-    const offscreen = this.controls.waveDispersionHeatmap.canvas.transferControlToOffscreen()
-
-    this.fftWrapper.worker.postMessage(
-      {
-        type: 'canvas',
-        data: offscreen
-      },
-      [
-        offscreen
-      ]
+    this.waveDispersionWrapper = new WaveDispersionWrapper(
+      this.bufferOutputMessageChannel,
+      offscreenCanvas
     )
 
     this.waitForSimulation()
@@ -126,13 +144,13 @@ export default class App {
       this.controls.measuredGammaGraph.target = this.controls.gammaInput.value
       this.simulationWrapper.gamma = this.controls.gammaInput.value
       this.simulationWrapper.initDataCollection()
-      this.fftWrapper.reset()
+      this.waveDispersionWrapper.reset()
     }
 
     if (this.simulationWrapper.kappa !== this.controls.kappaInput.value) {
       this.simulationWrapper.kappa = this.controls.kappaInput.value
       this.simulationWrapper.initDataCollection()
-      this.fftWrapper.reset()
+      this.waveDispersionWrapper.reset()
     }
 
     if (this.simulationWrapper.active) {

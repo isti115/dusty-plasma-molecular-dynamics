@@ -11,7 +11,7 @@ export default class SimulationWrapper {
       kappa,
       pairCorrelationResolution
     },
-    fftPort1
+    bufferInputMessageChannel
   ) {
     this.size = size
     this.gridCount = gridCount
@@ -19,7 +19,7 @@ export default class SimulationWrapper {
     this._gamma = gamma
     this._kappa = kappa
     this.pairCorrelationResolution = pairCorrelationResolution
-    this.fftPort1 = fftPort1
+    this.bufferInputMessageChannel = bufferInputMessageChannel
 
     this.init = this.init.bind(this)
     this.initDataCollection = this.initDataCollection.bind(this)
@@ -59,11 +59,15 @@ export default class SimulationWrapper {
 
     this.worker.postMessage(
       {
-        type: 'fftPort1',
-        data: this.fftPort1
+        type: 'bufferInputMessageChannel',
+        data: {
+          x: this.bufferInputMessageChannel.x.port1,
+          y: this.bufferInputMessageChannel.y.port1
+        }
       },
       [
-        this.fftPort1
+        this.bufferInputMessageChannel.x.port1,
+        this.bufferInputMessageChannel.y.port1
       ]
     )
 

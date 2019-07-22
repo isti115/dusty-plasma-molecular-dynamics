@@ -21,8 +21,8 @@ class SimulationWorker {
 
   handleMessage (msg) {
     const messageHandlers = {
-      'fftPort1': data => {
-        this.fftPort1 = data
+      'bufferInputMessageChannel': data => {
+        this.bufferInputMessageChannel = data
       },
 
       'gamma': data => {
@@ -106,28 +106,42 @@ class SimulationWorker {
         })
 
         const msg = {
-          type: 'coordinates',
-          data: {
-            y: {
+          y: {
+            type: 'coordinates',
+            data: {
               positions: yPositions,
               velocities: yVelocities
-            },
-            x: {
+            }
+          },
+          x: {
+            type: 'coordinates',
+            data: {
               positions: xPositions,
               velocities: xVelocities
             }
           }
         }
 
-        this.fftPort1.postMessage(
-          msg,
+        // const t0 = performance.now()
+
+        this.bufferInputMessageChannel.x.postMessage(
+          msg.x,
           [
-            msg.data.x.positions,
-            msg.data.x.velocities,
-            msg.data.y.positions,
-            msg.data.y.velocities
+            msg.x.data.positions,
+            msg.x.data.velocities
           ]
         )
+
+        this.bufferInputMessageChannel.y.postMessage(
+          msg.y,
+          [
+            msg.y.data.positions,
+            msg.y.data.velocities
+          ]
+        )
+
+        // const t1 = performance.now()
+        // console.log(`Send time: ${t1 - t0}ms`)
 
         // this.fftPort1.postMessage({
         //   type: 'coordinates',
