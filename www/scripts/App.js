@@ -42,6 +42,12 @@ export default class App {
 
     this.controls.resetButton.container.addEventListener('click', () => {
       this.simulationWrapper.reset()
+
+      this.controls.measuredGammaGraph.data = []
+      this.recordGamma = false
+      setTimeout(() => { this.recordGamma = true }, 333)
+      this.controls.measuredGammaGraph.draw()
+
       this.waveDispersionWrapper.reset()
     })
 
@@ -68,6 +74,7 @@ export default class App {
     // #region Measured Gamma and Pair Correlation graphs
 
     this.controls.measuredGammaGraph.target = this.controls.gammaInput.value
+    this.recordGamma = true
 
     this.controls.pairCorrelationGraph.bottomScale.form = 0
     this.controls.pairCorrelationGraph.bottomScale.to = (
@@ -154,7 +161,9 @@ export default class App {
     }
 
     if (this.simulationWrapper.active) {
-      this.controls.measuredGammaGraph.add(this.simulationWrapper.data.measuredGamma)
+      if (this.recordGamma) {
+        this.controls.measuredGammaGraph.add(this.simulationWrapper.data.measuredGamma)
+      }
 
       const gammaDifference = Math.abs(
         this.controls.gammaInput.value - this.simulationWrapper.data.measuredGamma
@@ -201,32 +210,40 @@ export default class App {
       )
     }
 
-    const deltaR = physics.CutoffDistance / this.controls.pairCorrelationGraph.dataLength
-    const area = k => (((k * deltaR) ** 2) * Math.PI) - ((((k - 1) * deltaR) ** 2) * Math.PI)
-    this.controls.pairCorrelationGraph.data = (
-      this.simulationWrapper.data.pairCorrelationData.map(
-        (n, i) => (n / area(i + 1)) /
+    if (this.simulationWrapper.data.stepCount > physics.strongThermostateStepCount) {
+      const deltaR = physics.CutoffDistance / this.controls.pairCorrelationGraph.dataLength
+      const area = k => (((k * deltaR) ** 2) * Math.PI) - ((((k - 1) * deltaR) ** 2) * Math.PI)
+      this.controls.pairCorrelationGraph.data = (
+        this.simulationWrapper.data.pairCorrelationData.map(
+          (n, i) => (n / area(i + 1)) /
         (this.simulationWrapper.data.stepCount - physics.strongThermostateStepCount)
+        )
       )
-    )
 
-    this.controls.pairCorrelationGraph.data = (
-      this.controls.pairCorrelationGraph.data.map(
-        d => d / 1250000000
+      this.controls.pairCorrelationGraph.data = (
+        this.controls.pairCorrelationGraph.data.map(
+          d => d / 1250000000
+        )
       )
-    )
 
-    this.controls.pairCorrelationGraph.target = (
-      Math.max(...this.controls.pairCorrelationGraph.data)
-    )
+      this.controls.pairCorrelationGraph.target = (
+        Math.max(...this.controls.pairCorrelationGraph.data)
+      )
 
-    this.controls.pairCorrelationGraph.leftScale.markers = [
-      0,
-      1,
-      this.controls.pairCorrelationGraph.target,
-      1.2 * this.controls.pairCorrelationGraph.target
-    ]
-    this.controls.pairCorrelationGraph.draw()
+      this.controls.pairCorrelationGraph.leftScale.markers = [
+        0,
+        1,
+        this.controls.pairCorrelationGraph.target,
+        1.2 * this.controls.pairCorrelationGraph.target
+      ]
+      this.controls.pairCorrelationGraph.draw()
+    } else {
+      this.controls.pairCorrelationGraph.clear()
+      this.controls.pairCorrelationGraph.context.font = '18px Century Gothic'
+      this.controls.pairCorrelationGraph.context.fillStyle = '#000000'
+      this.controls.pairCorrelationGraph.context.fillText('Strong thermalisation in progress,', 8, 100)
+      this.controls.pairCorrelationGraph.context.fillText('no data is being collected.', 32, 120)
+    }
 
     this.display.draw(this.simulationWrapper.data.particles)
     this.mirror.draw(this.controls.mirrorToggle.value)

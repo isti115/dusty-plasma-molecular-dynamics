@@ -136,6 +136,7 @@ class Graph {
 
     this.init = this.init.bind(this)
     this.add = this.add.bind(this)
+    this.clear = this.clear.bind(this)
     this.draw = this.draw.bind(this)
 
     this.init()
@@ -177,9 +178,13 @@ class Graph {
     this.draw()
   }
 
-  draw () {
+  clear () {
     this.context.fillStyle = '#FFFFFF'
     this.context.fillRect(0, 0, this.canvas.width, this.canvas.height)
+  }
+
+  draw () {
+    this.clear()
 
     const [minData, maxData] = this.target === undefined
       ? [Math.min(...this.data), Math.max(...this.data)]
