@@ -54,10 +54,22 @@ class Simulation {
     this.pairCorrelationData = utilities.generateArray(this.pairCorrelationResolution, () => 0)
   }
 
+  get desiredTemperature () {
+    return (
+      physics.ParticleChargeSquaredTimesCoulombConstant /
+      (
+        physics.WignerSeitzRadius *
+        physics.BoltzmannConstant *
+        this.gamma
+      )
+    )
+  }
+
   placeParticles () {
     this.particles = utilities.generateArray(
       this.particleCount,
-      () => Particle.randomParticle(this.size)
+      // () => Particle.randomParticle(this.size)
+      () => Particle.randomMovingParticle(this.size, this.desiredTemperature)
     )
 
     // const p1 = new Particle()
@@ -249,14 +261,7 @@ class Simulation {
       )
     )
 
-    const desiredTemperature = (
-      physics.ParticleChargeSquaredTimesCoulombConstant /
-      (
-        physics.WignerSeitzRadius *
-        physics.BoltzmannConstant *
-        this.gamma
-      )
-    )
+    const desiredTemperature = this.desiredTemperature
 
     if (this.stepCount < physics.strongThermostateStepCount) {
       this.strongThermostate(measuredTemperature, desiredTemperature)

@@ -1,3 +1,6 @@
+/* global physics */
+// import physics from '../physics.js'
+
 class Particle {
   constructor () {
     this.position = { x: 0, y: 0 }
@@ -12,6 +15,17 @@ class Particle {
     p.position = {
       x: Math.random() * limit.x,
       y: Math.random() * limit.y
+    }
+
+    return p
+  }
+
+  static randomMovingParticle (limit, desiredTemperature) {
+    const p = Particle.randomParticle(limit)
+
+    p.velocity = {
+      x: physics.maxwellBoltzmannSample(desiredTemperature),
+      y: physics.maxwellBoltzmannSample(desiredTemperature)
     }
 
     return p
