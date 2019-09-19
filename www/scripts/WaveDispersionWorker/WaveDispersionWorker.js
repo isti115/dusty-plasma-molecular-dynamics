@@ -83,7 +83,7 @@ class WaveDispersionWorker {
 
         if (this.bufferData[source].length === this.bufferLength) {
           // console.log('received data from: ', source)
-          console.log(source, (new Date() - this.prevTime) / 1000)
+          // console.log(source, (new Date() - this.prevTime) / 1000)
           this.prevTime = new Date()
 
           this.process(this.bufferData[source])

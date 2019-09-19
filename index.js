@@ -116,4 +116,4 @@ app.on('ready', async () => {
   // await createWindow()
 })
 
-console.log(process.versions)
+// console.log(process.versions)
